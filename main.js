@@ -16,32 +16,16 @@ let DASHKEY = "KeyJ";
 let JUMPKEY = "KeyK";
 let GRABKEY = "KeyL";
 
+// Viewport
+const VP = {
+    x:player1.t.x-res.w/2,
+    y:player1.t.y-res.h/4*3,
+    w:res.w,
+    h:res.h
+}
+let adjustVY = false;
 
-// UI
-const playerW = 64;
-const playerH = 64;
-const player1 = new Dynamic("rect", {x:64,y:res.h/2-64,w:playerW,h:playerH, o: {x:-0.5,y:-1}}, "black", new RectCollider());
-player1.name = "player";
 
-const pad2 = new Dynamic("rect", {x:res.w-64,y:res.h/2-64,w:32,h:128, o: {x:-1,y:0}}, "black", new RectCollider());
-
-const EDGEL = new Dynamic("rect", {x:8,    y:0, w:4,h:res.h, o: {x:-1,y:0}},  "black", new RectCollider());
-const EDGER = new Dynamic("rect", {x:res.w-8,y:0,w:4,h:res.h, o: {x:0,y:0}}, "black", new RectCollider());
-const EDGET = new Dynamic("rect", {x:0,y:8,     w:res.w,h:4, o: {x:0,y:-1}},  "black", new RectCollider());
-const EDGEB = new Dynamic("rect", {x:0,y:res.h-8,w:res.w,h:4, o: {x:0,y:0}}, "black", new RectCollider());
-
-const PLAT = new Dynamic("rect", {x:0,y:res.h-256,w:256,h:4, o: {x:0,y:0}}, "black", new RectCollider());
-PLAT.hitbox.sides = _PLATFORM;
-EDGEB.friction = 32;
-
-const crouchWall = new Dynamic("rect", {x:256,y:res.h-12-16-5,     w:128,h:512, o: {x:0,y:-1}}, "black", new RectCollider());
-const crouchWall2 = new Dynamic("rect", {x:1024,y:res.h-12-16-5-16,     w:128,h:128, o: {x:0,y:-1}}, "black", new RectCollider());
-const point = new Dynamic("circle", {x:8,y:8,     w:8,h:8, o: {x:-.5,y:-.5}}, "yellow");
-
-SCENE.init(player1);
-SCENE.addBulk([point,EDGEL,EDGER, EDGEB, EDGET, crouchWall, crouchWall2, PLAT]);
-
-//HARD CODED HELPERS ;-;
 let dx = 0;
 
 let ri = false;
@@ -60,6 +44,7 @@ const update = () =>
 {
     SCENE.update();
 
+    adjustVY = false;
     player1.grounded = false;
     
     if (graceSec > 0)
@@ -106,11 +91,12 @@ const update = () =>
 
     if (onLedge && keys[GRABKEY] && (player1.v.y < -16))
     {
+        adjustVY = true;
         player1.v.y = -16;
     }
     else
     {
-        player1.v.y-=256/(1/60)*_DELTATIME;
+        player1.v.y-=128/(1/60)*_DELTATIME;
     }
 
     if (player1.grounded)
@@ -127,8 +113,10 @@ const update = () =>
         onLedge = false;
 
         player1.v.x += dx* (player1.grounded ? (player1.ground.friction != undefined ? player1.ground.friction : 128) : AIRACC);
-        if (Math.abs(player1.v.x) > 2048*32/(player1.grounded ? ((player1.ground.friction != undefined ? player1.ground.friction:128) * (player1.t.h < playerH ? 2 : 1)) : 0.01))
-            player1.v.x = Math.sign(player1.v.x)*2048*32/(player1.grounded ? ((player1.ground.friction != undefined ? player1.ground.friction:128) * (player1.t.h < playerH ? 2 : 1)) : 0.01);
+        if (Math.abs(player1.v.x) >              2048*32/((player1.friction != undefined ? player1.friction:128) * (player1.t.h < playerH ? 2 : 1)))
+            player1.v.x = Math.sign(player1.v.x)*2048*32/((player1.friction != undefined ? player1.friction:128) * (player1.t.h < playerH ? 2 : 1));
+        // if (Math.abs(player1.v.x) > 2048*32/(player1.grounded ? ((player1.ground.friction != undefined ? player1.ground.friction:128) * (player1.t.h < playerH ? 2 : 1)) : 0.01))
+        //     player1.v.x = Math.sign(player1.v.x)*2048*32/(player1.grounded ? ((player1.ground.friction != undefined ? player1.ground.friction:128) * (player1.t.h < playerH ? 2 : 1)) : 0.01);
     
         if (dx == 0 && player1.v.x != 0)
         {
@@ -143,17 +131,21 @@ const update = () =>
     player1.hitbox.coldt.w = player1.t.w;
     player1.hitbox.coldt.h = player1.t.h;
 
+
     if (!JPressed && keys[JUMPKEY] && LgraceSec > 0 && !Ljumped)
     {
         JPressed = true;
-        player1.v.y = 2048;
+        player1.v.y = 1024;
         player1.v.x = 1024 * (ri * -2 + 1);
+        player1.friction = 64;
         Ljumped = true;
     }
+
     if (!keys[JUMPKEY]) JPressed = false;
 
     if (graceSec > 0)
     {
+        adjustVY = true;
         if (keys[JUMPKEY]) upDowned = true;
         if (keys[JUMPKEY] || keys[DOWNKEY])
         {
@@ -166,13 +158,26 @@ const update = () =>
         {
             if (upDowned)
             {
-                player1.v.y = ((playerH - player1.t.h)/(playerH/2)*36)**2;
+                player1.v.y = ((playerH - player1.t.h)/(playerH/2)*36)**2/1.2;
                 upDowned = false;
             }
             graceSec = 0;
             player1.t.w = 64;
         }
     }
+
+    // Viewport Position
+    if (player1.t.y + player1.t.h*player1.t.o.y < VP.y || player1.t.y + player1.t.h*player1.t.o.y + player1.t.h > VP.y+VP.h)
+        adjustVY = true;
+
+    VP.x = player1.t.x-res.w/2;
+    if (adjustVY)
+        VP.y += ((player1.t.y-res.h/4*3)-VP.y)/16/(1/60)*_DELTATIME;
+    else
+        VP.y += ((player1.t.y-res.h/4*3)-VP.y)/32/(1/60)*_DELTATIME;
+
+
+    // Restore Height
     if (!(keys[JUMPKEY] || keys[DOWNKEY]) && player1.t.h != playerH)
     {
         player1.t.h += (playerH - player1.t.h)/2/(1/60)*_DELTATIME;
@@ -193,9 +198,33 @@ const update = () =>
     }
 };
 
+function AABB(x1,y1,w1,h1,x2,y2,w2,h2)
+{
+    if (
+        x1 < x2 + w2 &&
+        x1 + w1 > x2 &&
+        y1 < y2 + h2 &&
+        y1 + h1 > y2
+    ) return true;
+    return false;
+}
+
 const render = () =>
 {
     rr.drawBackground(currentCtx, "black");
+    
+    for (const obj of SCENE.el)
+    {
+        if (
+            AABB(
+                VP.x,VP.y,VP.w,VP.h,
+                obj.t.x+obj.t.o.x*obj.t.w, obj.t.y+obj.t.o.y*obj.t.h, obj.t.w, obj.t.h
+            )
+        )
+            obj.visible = true;
+        else
+            obj.visible = false;
+    }
 
     SCENE.render();
     rr.render();

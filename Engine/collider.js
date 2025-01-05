@@ -257,6 +257,7 @@ class RectCollider
         {
             this.parent.grounded = true;
             this.parent.ground = target.parent;
+            this.parent.friction = target.parent.friction;
             graceSec = 0.1;
             return true;
         }

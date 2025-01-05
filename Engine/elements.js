@@ -114,7 +114,14 @@ class StaticObject
         {
             case "rect":
             {
-                rr.drawRect(ctx, this.t, this.c, this.alpha, "fillborder", 1, "white");
+                let tt = {
+                    x:this.t.x-VP.x,
+                    y:this.t.y-VP.y,
+                    w:this.t.w,
+                    h:this.t.h,
+                    o:this.t.o
+                };
+                rr.drawRect(ctx, tt, this.c, this.alpha, "fillborder", 1, "white");
                 break;
             }
 

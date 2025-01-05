@@ -5,11 +5,13 @@ class Scene
     constructor()
     {
         this.elements = new LinkedList();
+        this.el = [];
     }
 
     init(value)
     {
         this.elements.init(value);
+        this.el.push(value);
     }
 
     add(value)
@@ -20,6 +22,11 @@ class Scene
     addBulk(valArray)
     {
         this.elements.addBulk(valArray);
+        this.el=[];
+        this.elements.callNodeMethods((obj) =>
+        {
+            this.el.push(obj);
+        });
     }
 
     deleteItem(value)
@@ -34,30 +41,28 @@ class Scene
 
     collisionsWith(object, callback = undefined, rR = undefined, rRR = undefined)
     {
-        aur = 0;
-        this.elements.callNodeMethods((obj) =>
+        for (const obj of this.el)
         {
-            aur++;
             if (!(object === obj) && object.collideWith(obj, rR, rRR))
             {
                 if (callback != undefined) callback(obj);
             }
-        });
+        }
     }
 
     update()
     {
-        this.elements.callNodeMethods((object) =>
+        for (const obj of this.el)
         {
-            object.update();
-        });
+            obj.update();
+        }
     }
 
     render()
     {
-        this.elements.callNodeMethods((object) =>
+        for (const obj of this.el)
         {
-            if (object.visible) object.render();
-        });
+            if (obj.visible) obj.render();
+        }
     }
 }
