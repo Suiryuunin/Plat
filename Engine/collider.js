@@ -11,6 +11,7 @@ class RectCollider
         this.type = "rect";
         this.center = {x:this.t.x - this.t.w*this.t.o.x - this.t.w/2, y:this.t.y- this.t.h*this.t.o.y - this.t.h/2};
         this.oldcenter = {x:this.t.x - this.t.w*this.t.o.x - this.t.w/2, y:this.t.y- this.t.h*this.t.o.y - this.t.h/2};
+        this.coldt = {};
 
         this.reposition = true;
     }
@@ -19,26 +20,26 @@ class RectCollider
     {
         switch(true)
         {
-            case this.parent.v.x < 0 && l:
+            case /*this.parent.v.x < 0 && */l:
             {
                 this.t.x = (x+w+w*o.x)-this.t.w*this.t.o.x;
 
                 return;
             }
-            case this.parent.v.x > 0 && r:
+            case /*this.parent.v.x > 0 && */r:
             {
                 this.parent.t.x = (x+w*o.x)-this.t.w - this.t.w*this.t.o.x;
 
                 return;
             }
 
-            case this.parent.v.y < 0 && b:
+            case /*this.parent.v.y < 0 && */b:
             {
                 this.t.y = (y+h*o.y)-this.t.h - this.t.h*this.t.o.y;
 
                 return;
             }
-            case this.parent.v.y > 0 && t:
+            case /*this.parent.v.y > 0 && */t:
             {
                 this.t.y = (y+h+h*o.y)-this.t.h*this.t.o.y;
 
@@ -152,16 +153,21 @@ class RectCollider
         }
     }
 
-    RRCollision(target, {l,r,t,b})
+    RRCollision(target)
     {
-        if (this.sides.r && !l)
+        let l = false;
+        let r = false;
+        let t = false;
+        let b = false;
+
+        if (target.sides.r)
             l = this.collideLeft(target.t);
-        if (this.sides.l && !r)
+        if (target.sides.l)
             r = this.collideRight(target.t);
-        if (this.sides.b && !t)
+        if (target.sides.b)
             t = this.collideTop(target.t);
-        if (this.sides.t && !b)
-            b = this.collideBottom(target.t);
+        if (target.sides.t)
+            b = this.collideBottom(target.t, target);
 
         return {l:l,r:r,t:t,b:b};
     }
@@ -171,14 +177,14 @@ class RectCollider
         return (l+r+t+b) > 0;
     }
 
-    isCollidingWith(target, {l,r,t,b} = {l:false,r:false,t:false,f:false}, rR = undefined, rRR = undefined)
+    isCollidingWith(target, rR = undefined, rRR = undefined)
     {
         if (target != undefined)
         {
             if (target.type == "rect")
             {
                 let tsides = {};
-                if (this.sides != _NOCOLLISION && this.compileSides(tsides = this.RRCollision(target, {l,r,t,b})))
+                if (target.sides != _NOCOLLISION && this.compileSides(tsides = this.RRCollision(target)))
                 {
                     if (target.reposition) this.repositionR(target.t, tsides);
                     if (rRR != undefined) rRR(target, tsides);
@@ -220,41 +226,52 @@ class RectCollider
     collideTop({x,y,w,h,o})
     {
         const _o = this.t.h * this.t.o.y;
+        const _oo = (this.coldt.h ? this.coldt.h : this.oldt.h) * (this.coldt.o ? this.coldt.o.y : this.oldt.o.y);
         const _x = this.t.x + this.t.w * this.t.o.x, _y = this.t.y + _o;
-        const oldy = this.oldt.y + _o;
+        const oldy = this.oldt.y + _oo;
         const __x = x + w * o.x, __y = y + h * o.y;
 
         if (_x+this.t.w >= __x   &&
             _x          <= __x+w &&
             _y          <= __y+h &&
             oldy        >= __y+h)
+        {
+            this.parent.v.y = 1;
             return true;
+        }
         
         return false;
     }
-    collideBottom({x,y,w,h,o})
+    collideBottom({x,y,w,h,o}, target)
     {
         const _o = this.t.h * this.t.o.y;
+        const _oo = (this.coldt.h ? this.coldt.h : this.oldt.h) * (this.coldt.o ? this.coldt.o.y : this.oldt.o.y);
         const _x = this.t.x + this.t.w * this.t.o.x, _y = this.t.y + _o;
-        const oldy = this.oldt.y + _o;
+        const oldy = this.oldt.y + _oo;
         const __x = x + w * o.x, __y = y + h * o.y;
         
         if (_x+this.t.w   >= __x   &&
             _x            <= __x+w &&
             _y+this.t.h   >= __y   &&
-            oldy+this.t.h <= __y)
+            oldy+(this.coldt.h ? this.coldt.h : this.oldt.h) <= __y)
+        {
+            this.parent.grounded = true;
+            this.parent.ground = target.parent;
+            graceSec = 0.1;
             return true;
-        
-        if (this.grounded != undefined)
-            this.grounded = false;
+        }
+
         return false;
     }
     collideLeft({x,y,w,h,o})
     {
         const _o = this.t.w * this.t.o.x;
+        const _oo = (this.coldt.w ? this.coldt.w : this.oldt.w) * (this.coldt.o ? this.coldt.o.x : this.oldt.o.x);
         const _x = this.t.x + _o, _y = this.t.y + this.t.h * this.t.o.y;
-        const oldx = this.oldt.x + _o;
+        const oldx = this.oldt.x + _oo;
         const __x = x + w * o.x, __y = y + h * o.y;
+        // if (this.parent == player1)
+        // console.log(`oldW:${this.oldt.w}, w:${this.t.w}, old:${oldx}, new:${_x}, coldt:${this.coldt.w}`)
 
         if (_x          <= __x+w &&
             oldx        >= __x+w &&
@@ -267,12 +284,13 @@ class RectCollider
     collideRight({x,y,w,h,o})
     {
         const _o = this.t.w * this.t.o.x;
+        const _oo = (this.coldt.w ? this.coldt.w : this.oldt.w) * (this.coldt.o ? this.coldt.o.x : this.oldt.o.x);
         const _x = this.t.x + _o, _y = this.t.y + this.t.h * this.t.o.y;
-        const oldx = this.oldt.x + _o;
+        const oldx = this.oldt.x + _oo;
         const __x = x + w * o.x, __y = y + h * o.y;
 
         if (_x+this.t.w   >= __x   &&
-            oldx+this.t.w <= __x   &&
+            oldx+(this.coldt.w ? this.coldt.w : this.oldt.w) <= __x   &&
             _y+this.t.h   >= __y   &&
             _y            <= __y+h)
             return true;

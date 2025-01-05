@@ -43,6 +43,7 @@ class StaticObject
         this.name = "nameless";
         this.id = id;
         id++;
+        this.visible = true;
         this.t = {x:x,y:y,w:w,h:h,o:o};
         this.ot = {x:x,y:y,w:w,h:h,o:o};
         this.c = c;
@@ -113,7 +114,7 @@ class StaticObject
         {
             case "rect":
             {
-                rr.drawRect(ctx, this.t, this.c, this.alpha);
+                rr.drawRect(ctx, this.t, this.c, this.alpha, "fillborder", 1, "white");
                 break;
             }
 
@@ -275,11 +276,6 @@ class Dynamic extends StaticObject
 
     update()
     {
-        // *special for pong
-        if (this.red > 255) this.red = 255;
-        this.c = `#ff${(this.red*1).toString(16).length < 2 ? "0"+(this.red*1).toString(16) : (this.red*1).toString(16)}${(this.red*1).toString(16).length < 2 ? "0"+(this.red*1).toString(16) : (this.red*1).toString(16)}`;
-        if (this.red < 255) this.red+=Math.round(8/(1/30)*_DELTATIME);
-
         if (this.hitbox)
             this.hitbox.parent = this;
         this.setOldTransform();
@@ -297,7 +293,7 @@ class Dynamic extends StaticObject
 
     collideWith(target, rR = undefined, rRR = undefined)
     {
-        if (this.hitbox.isCollidingWith(target.hitbox, {l:false, r:false, t:false, b:false}, rR, rRR))
+        if (this.hitbox.isCollidingWith(target.hitbox, rR, rRR))
         {
             this.t.x = this.hitbox.t.x;
             this.t.y = this.hitbox.t.y;

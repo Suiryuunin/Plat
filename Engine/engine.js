@@ -54,9 +54,9 @@ class Engine
                 this.render();
 
                 TargetFPS.innerHTML = "Target FPS: "+this.fps.toFixed(2);
-                TargetFPS.style.color = this.fps > 24 ? "lightgreen" : "red";
+                TargetFPS.style.color = this.fps > 24 ? "green" : "red";
                 LiveFPS.innerHTML = " Live FPS: "+(1000/this.delta).toFixed(2);
-                LiveFPS.style.color = (1000/this.delta) > 24 ? "lightgreen" : "red";
+                LiveFPS.style.color = (1000/this.delta) > 24 ? "green" : "red";
 
                 this.timeStamp = time;
 

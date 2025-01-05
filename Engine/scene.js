@@ -1,3 +1,5 @@
+let aur = 0;
+
 class Scene
 {
     constructor()
@@ -32,8 +34,10 @@ class Scene
 
     collisionsWith(object, callback = undefined, rR = undefined, rRR = undefined)
     {
+        aur = 0;
         this.elements.callNodeMethods((obj) =>
         {
+            aur++;
             if (!(object === obj) && object.collideWith(obj, rR, rRR))
             {
                 if (callback != undefined) callback(obj);
@@ -53,7 +57,7 @@ class Scene
     {
         this.elements.callNodeMethods((object) =>
         {
-            object.render();
+            if (object.visible) object.render();
         });
     }
 }
