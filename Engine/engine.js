@@ -1,5 +1,6 @@
 let _DELTATIME = 0;
 let _PDELTATIME = 0;
+let _TIME = 0;
 
 const TargetFPS = document.createElement("div");
 TargetFPS.style.position = "absolute";
@@ -44,7 +45,7 @@ class Engine
 
         this.run = (time) =>
         {
-            this.time = time;
+            _TIME = this.time = time;
             this.delta = (this.time - this.timeStamp)/1;
 
             if (this.delta >= 1000 / (this.fps + 4))

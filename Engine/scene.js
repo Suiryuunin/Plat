@@ -6,6 +6,7 @@ class Scene
     {
         this.elements = new LinkedList();
         this.el = [];
+        this.SF = [];
     }
 
     init(value)

@@ -13,7 +13,7 @@ class RectCollider
         this.oldcenter = {x:this.t.x - this.t.w*this.t.o.x - this.t.w/2, y:this.t.y- this.t.h*this.t.o.y - this.t.h/2};
         this.coldt = {};
 
-        this.reposition = true;
+        this.trigger = false;
     }
 
     repositionR({x,y,w,h,o}, {l,r,t,b})
@@ -161,11 +161,11 @@ class RectCollider
         let b = false;
 
         if (target.sides.r)
-            l = this.collideLeft(target.t);
+            l = this.collideLeft(target.t, target);
         if (target.sides.l)
-            r = this.collideRight(target.t);
+            r = this.collideRight(target.t, target);
         if (target.sides.b)
-            t = this.collideTop(target.t);
+            t = this.collideTop(target.t, target);
         if (target.sides.t)
             b = this.collideBottom(target.t, target);
 
@@ -186,7 +186,7 @@ class RectCollider
                 let tsides = {};
                 if (target.sides != _NOCOLLISION && this.compileSides(tsides = this.RRCollision(target)))
                 {
-                    if (target.reposition) this.repositionR(target.t, tsides);
+                    if (!target.trigger) this.repositionR(target.t, tsides);
                     if (rRR != undefined) rRR(target, tsides);
                     return true;
                 }
@@ -196,7 +196,7 @@ class RectCollider
             {
                 if (this.sides != _NOCOLLISION && this.compileSides(this.rectCircle(target, this.sides)))
                 {
-                    if (target.reposition) this.repositionC(target);
+                    if (!target.trigger) this.repositionC(target);
                     return true;
                 }
                 return false;
@@ -223,7 +223,7 @@ class RectCollider
         }
     }
 
-    collideTop({x,y,w,h,o})
+    collideTop({x,y,w,h,o}, target)
     {
         const _o = this.t.h * this.t.o.y;
         const _oo = (this.coldt.h ? this.coldt.h : this.oldt.h) * (this.coldt.o ? this.coldt.o.y : this.oldt.o.y);
@@ -236,7 +236,6 @@ class RectCollider
             _y          <= __y+h &&
             oldy        >= __y+h)
         {
-            this.parent.v.y = 1;
             return true;
         }
         
@@ -255,16 +254,12 @@ class RectCollider
             _y+this.t.h   >= __y   &&
             oldy+(this.coldt.h ? this.coldt.h : this.oldt.h) <= __y)
         {
-            this.parent.grounded = true;
-            this.parent.ground = target.parent;
-            this.parent.friction = target.parent.friction;
-            graceSec = 0.1;
             return true;
         }
 
         return false;
     }
-    collideLeft({x,y,w,h,o})
+    collideLeft({x,y,w,h,o}, target)
     {
         const _o = this.t.w * this.t.o.x;
         const _oo = (this.coldt.w ? this.coldt.w : this.oldt.w) * (this.coldt.o ? this.coldt.o.x : this.oldt.o.x);
@@ -282,7 +277,7 @@ class RectCollider
         
         return false;
     }
-    collideRight({x,y,w,h,o})
+    collideRight({x,y,w,h,o}, target)
     {
         const _o = this.t.w * this.t.o.x;
         const _oo = (this.coldt.w ? this.coldt.w : this.oldt.w) * (this.coldt.o ? this.coldt.o.x : this.oldt.o.x);
@@ -378,7 +373,7 @@ class CircleCollider
         this.oldcenter = {x:this.t.x - this.t.w*this.t.o.x - this.t.w/2, y:this.t.y- this.t.h*this.t.o.y - this.t.h/2};
         this.LineChecked = 0;
         this.blacklisted = {};
-        this.reposition = true;
+        this.trigger = false;
     }
 
     collideTop({x,y,w,h,o})
@@ -649,7 +644,7 @@ class CircleCollider
             {
                 if (target.sides != _NOCOLLISION && this.circleRect(target.t, target.sides, rRR, target))
                 {
-                    if (target.reposition) if (this.LineChecked == 0) this.repositionR(target, rR, rRR);
+                    if (!target.trigger) if (this.LineChecked == 0) this.repositionR(target, rR, rRR);
                     return true;
                 }
                 return false;
@@ -690,7 +685,7 @@ class CircleCollider
                 let tsides = {l:false,r:false,t:false,b:false};
                 if (this.compileSides(tsides = this.RRCollision(target)))
                 {
-                    if (target.reposition) this.repositionRR(target.t, tsides);
+                    if (!target.trigger) this.repositionRR(target.t, tsides);
                     if (rRR != undefined) rRR(target, tsides);
                     this.LineChecked = 2;
                     return true;
@@ -723,7 +718,7 @@ class CircleCollider
     //             console.log(minX)
     //             if (this.compileSides(tsides = this.RRCollision(target)))
     //             {
-    //                 if (target.reposition) this.repositionRR(target.t, tsides);
+    //                 if (!target.trigger) this.repositionRR(target.t, tsides);
     //                 if (rRR != undefined) rRR(target, tsides, l,r,t,b);
     //                 this.blacklisted = target;
     //                 this.LineChecked = 2;

@@ -47,12 +47,15 @@ class StaticObject
         this.t = {x:x,y:y,w:w,h:h,o:o};
         this.ot = {x:x,y:y,w:w,h:h,o:o};
         this.c = c;
+        this.outc = OUTLINECOLOR;
         this.oc = c;
+        this.ooutc = this.outc;
         this.red = 255;
         this.ro = {x:0,y:0};
         this.hovering = false;
         this.visible = true;
         this.active = true;
+        this.imgT = {l:0,r:0,t:0,b:0};
 
         if (collider)
         {
@@ -114,6 +117,8 @@ class StaticObject
         {
             case "rect":
             {
+                if (this.name == "StaminaFruit") console.log(this.outc);
+
                 let tt = {
                     x:this.t.x-VP.x,
                     y:this.t.y-VP.y,
@@ -121,7 +126,7 @@ class StaticObject
                     h:this.t.h,
                     o:this.t.o
                 };
-                rr.drawRect(ctx, tt, this.c, this.alpha, "fillborder", 1, "white");
+                rr.drawRect(ctx, tt, this.c, this.alpha, "fillborder", 1, this.outc);
                 break;
             }
 
@@ -133,7 +138,14 @@ class StaticObject
 
             case "img":
             {
-                rr.drawImg(ctx, this.t, this.c, this.alpha, this.r, this.flip.x, this.flip.y);
+                let tt = {
+                    x:this.t.x-VP.x,
+                    y:this.t.y-VP.y,
+                    w:this.t.w,
+                    h:this.t.h,
+                    o:this.t.o
+                };
+                rr.drawImg(ctx, tt, this.imgT, this.c, this.alpha, this.r, this.flip.x, this.flip.y);
                 break;
             }
 

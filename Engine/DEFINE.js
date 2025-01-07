@@ -21,3 +21,11 @@ const _GRAVITY = -1.2;
 const _VCENTER = {x: Math.floor(res.w/2), y: Math.floor(res.h/2)};
 const _NOOFFSET = {x:0,y:0};
 const _CENTEROFFSET = {x:-0.5,y:-0.5};
+
+
+ /////////////
+ // IMAGES //
+////////////
+
+const I_PLAYER = new Image(128,128);
+I_PLAYER.src = "Assets/Textures/player.png";

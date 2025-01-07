@@ -102,26 +102,26 @@ class Renderer
         ctx.globalAlpha = 1;
     }
 
-    drawImg(ctx, {x, y, w, h, o}, img, alpha = 1, r = 0, sx=1,sy=1)
+    drawImg(ctx, {x, y, w, h, o}, {l,r,t,b}, img, alpha = 1, ro = 0, sx=1,sy=1)
     {
         if (alpha == 0) return;
 
         ctx.globalAlpha = alpha;
-        if (o != undefined && r == 0 && sx == 1 && sy == 1)
+        if (o != undefined && ro == 0 && sx == 1 && sy == 1)
         {
             x += w * o.x;
             y += h * o.y;
             
-            ctx.drawImage(img, x, y, w, h);
+            ctx.drawImage(img, x-l, y-t, w+l+r, h+t+b);
             return;
         }
         
         ctx.save();
 
-        if ((sx != 1 || sy != 1) && r != 0)
+        if ((sx != 1 || sy != 1) && ro != 0)
         {
             ctx.translate(x, y);
-            ctx.rotate(r * Math.PI / 180);
+            ctx.rotate(ro * Math.PI / 180);
             ctx.scale(sx,sy);
             
         }
@@ -133,10 +133,10 @@ class Renderer
                 ctx.scale(sx,sy);
             }
 
-            if (r != 0)
+            if (ro != 0)
             {
                 ctx.translate(x, y);
-                ctx.rotate(r * Math.PI / 180);
+                ctx.rotate(ro * Math.PI / 180);
             }
         }
 
