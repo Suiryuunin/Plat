@@ -127,8 +127,6 @@ class StaticObject
             case "ani":
             {
                 this.c = this.frameSet[Math.floor(((_TIME-this.creationTime) % (1000/this.fps*this.frameSet.length)) / (1000/this.fps))];
-                console.log((_TIME-this.creationTime) % (1000/this.fps*this.frameSet.length))
-                console.log(Math.floor(((_TIME-this.creationTime) % (1000/this.fps*this.frameSet.length)) / (1000/this.fps)))
                 this.drawIMG(ctx);
                 break;
 

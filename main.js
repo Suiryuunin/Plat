@@ -58,7 +58,6 @@ let LgraceSec = 0.1;
 let Ljumped = false;
 let canLJump = false;
 let JPressed = false;
-let upDowned = false;
 
 let dashed = false;
 let dashStop = false;
@@ -105,8 +104,10 @@ const update = () =>
     ri = false;
     le = false;
 
+    let totalCollisions = 0;
     SCENE.collisionsWith (
         player1, (target) => {
+            totalCollisions++;
             if (target.name == "StaminaFruit" && target.outc == `rbg(${DASHCOLOR.r}, ${DASHCOLOR.g}, ${DASHCOLOR.b})` && dashLeft == 0)
             {
                 dashLeft++;
@@ -127,10 +128,11 @@ const update = () =>
             if (tsides.l || tsides.r)
             {
                 onLedge = true;
-                if (!keys[JUMPKEY])
+                if (!keys[JUMPKEY] && !keyups[JUMPKEY])
                     canLJump = true;
                 else
                     canLJump = false;
+                
                 if (tsides.r){
                     ri = true;
                     player1.v.x = 0;
@@ -158,6 +160,10 @@ const update = () =>
             }
         },
     );
+    if (totalCollisions == 0)
+    {
+        onLedge = false;
+    }
     
     if (LgraceSec > 0)
         LgraceSec -= _DELTATIME;
@@ -213,7 +219,7 @@ const update = () =>
     }
     else
     {
-        onLedge = false;
+        // onLedge = false;
 
         player1.v.x += dx* (player1.grounded ? (player1.ground.friction != undefined ? player1.ground.friction : 128) : AIRACC);
         if (Math.abs(player1.v.x) >              2048*32/((player1.friction != undefined ? player1.friction:128) * (player1.t.h < playerH/2 ? 2 : 1)))
@@ -234,7 +240,7 @@ const update = () =>
     player1.hitbox.coldt.w = player1.t.w;
     player1.hitbox.coldt.h = player1.t.h;
 
-    if (!keys[JUMPKEY] && !keys[DOWNKEY] && !upDowned)
+    if (!keys[JUMPKEY] && !keys[DOWNKEY] && !keyups[JUMPKEY])
     {
     }
 
@@ -253,7 +259,7 @@ const update = () =>
     if (graceSec > 0)
     {
         adjustVY = true;
-        if (keys[JUMPKEY]) upDowned = true;
+        
         if (keys[JUMPKEY] || keys[DOWNKEY])
         {
             player1.imgT.b = 4;
@@ -265,10 +271,9 @@ const update = () =>
         }
         else if (player1.t.h != playerH)
         {
-            if (upDowned)
+            if (keyups[JUMPKEY])
             {
                 player1.v.y = ((playerH - player1.t.h)/(playerH/2)*36)**2/1.2;
-                upDowned = false;
                 graceSec = 0;
             }
 
@@ -356,7 +361,8 @@ const update = () =>
     // Restore Height
     if (!(keys[JUMPKEY] || keys[DOWNKEY]))
     {
-        if (player1.grounded || (onLedge && keys[GRABKEY]) || upDowned)
+        console.log(onLedge)
+        if (player1.grounded || (onLedge && keys[GRABKEY]) || keyups[JUMPKEY])
         {
             player1.t.h += ((Math.sin(_TIME/512)*2+58)-player1.t.h)/2/(1/60)*_DELTATIME;
             player1.imgT.b = 4;
@@ -387,6 +393,10 @@ const update = () =>
         // point.t.y = (ray.cast(SCENE, player1).hit != undefined ? ray.cast(SCENE, player1).hit.y : 0);
         // console.log(Math.min(ray.cast(SCENE, player1).dis, ray2.cast(SCENE, player1).dis))
     }
+
+    if (keyups[JUMPKEY])
+        delete keyups[JUMPKEY]
+
 };
 
 
@@ -452,6 +462,7 @@ const keys = {
     "KeyA": false,
     "KeyD": false
 }
+const keyups = {};
 
 window.addEventListener("keydown", (e) => {
     if (keys[e.code]) return;
@@ -497,6 +508,7 @@ window.addEventListener("keyup", (e) => {
         dx--;
 
     delete keys[e.code];
+    keyups[e.code] = true;
 
     if (!(keys[LEFTKEY] && keys[RIGHTKEY]))
         ldx = 0;

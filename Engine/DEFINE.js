@@ -41,4 +41,3 @@ I_PLAYER.src = "Assets/Textures/player.png";
 
 const A_PLAYER = [new Image(128,128),new Image(128,128),new Image(128,128)];
 AssignAniFrames(A_PLAYER, "Assets/Textures/Player/p000", ".png");
-console.log(A_PLAYER)
