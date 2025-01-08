@@ -19,35 +19,51 @@ class Ray {
                 const rx2 = obj.hitbox.t.x + (obj.hitbox.t.w*obj.hitbox.t.o.x) + obj.hitbox.t.w;
                 const ry2 = obj.hitbox.t.y + (obj.hitbox.t.h*obj.hitbox.t.o.y) + obj.hitbox.t.h;
 
-                const a = (this.y2-this.y1)/(this.x2-this.x1 == 0 ? 0.000001 : this.x2-this.x1);
-                const b = this.y1-(a*this.x1);
-                
-                if (!((this.x1 >= rx1 && this.x1 <= rx2 && this.y1 >= ry1 && this.y1 <= ry2) || (this.x2 >= rx1 && this.x2 <= rx2 && this.y2 >= ry1 && this.y2 <= ry2)))
-                    return;
-
-                let intersect = a*rx1+b;
                 let thits = []
-                if (intersect >= ry1 && intersect <= ry2)
-                {
-                    thits.push({x:rx1, y:intersect})
-                }
 
-                intersect = a*rx2+b;
-                if (intersect >= ry1 && intersect <= ry2)
+                if (this.x1 == this.x2)
                 {
-                    thits.push({x:rx2, y:intersect})
+                    if (this.x1 >= rx1 && this.x1 <= rx2)
+                    {
+                        if (ry1 >= Math.min(this.y1,this.y2) && ry1 <= Math.max(this.y1,this.y2))
+                            thits.push({x:this.x1, y:ry1});
+                        
+                        if (ry2 >= Math.min(this.y1,this.y2) && ry2 <= Math.max(this.y1,this.y2))
+                            thits.push({x:this.x1, y:ry2});
+                    }
                 }
-
-                intersect = (ry1-b)/a;
-                if (intersect >= rx1 && intersect <= rx2)
+                else
                 {
-                    thits.push({x:intersect, y:ry1})
-                }
+                    const a = (this.y2-this.y1)/this.x2-this.x1;
+                    const b = this.y1-(a*this.x1);
 
-                intersect = (ry2-b)/a;
-                if (intersect >= rx1 && intersect <= rx2)
-                {
-                    thits.push({x:intersect, y:ry2})
+                    let intersect = a*rx1+b;
+                    if (intersect >= ry1 && intersect <= ry2)
+                    {
+                        if (intersect >= Math.min(this.y1,this.y2) && intersect <= Math.max(this.y1,this.y2))
+                            thits.push({x:rx1, y:intersect})
+                    }
+    
+                    intersect = a*rx2+b;
+                    if (intersect >= ry1 && intersect <= ry2)
+                    {
+                        if (intersect >= Math.min(this.y1,this.y2) && intersect <= Math.max(this.y1,this.y2))
+                            thits.push({x:rx2, y:intersect})
+                    }
+    
+                    intersect = (ry1-b)/a;
+                    if (intersect >= rx1 && intersect <= rx2)
+                    {
+                        if (intersect >= Math.min(this.x1,this.x2) && intersect <= Math.max(this.x1,this.x2))
+                            thits.push({x:intersect, y:ry1})
+                    }
+    
+                    intersect = (ry2-b)/a;
+                    if (intersect >= rx1 && intersect <= rx2)
+                    {
+                        if (intersect >= Math.min(this.x1,this.x2) && intersect <= Math.max(this.x1,this.x2))
+                            thits.push({x:intersect, y:ry2})
+                    }
                 }
                 
                 let mdis = Infinity;

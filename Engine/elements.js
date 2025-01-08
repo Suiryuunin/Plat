@@ -37,7 +37,7 @@ class Word
 
 class StaticObject
 {
-    constructor(type = "none", {x,y,w,h,o}, c, collider = undefined, initFrame = 0, delay = 1, loop = true)
+    constructor(type = "none", {x,y,w,h,o}, c, collider = undefined, frameSet = 0, fps = 12, loop = true)
     {
         this.type = type;
         this.name = "nameless";
@@ -69,34 +69,12 @@ class StaticObject
 
         this.center = {x:this.t.x + this.t.w*this.t.o.x + this.t.w/2, y:this.t.y + this.t.h*this.t.o.y + this.t.h/2};
 
-        if (this.type == "ani")
-        {
-            this.frameSet = [];
-            for (const f of this.c)
-            {
-                const TEMPIMG = new Image();
-                TEMPIMG.src = f;
-                this.frameSet.push(TEMPIMG);
-            }
-            this.frame = initFrame;
-        }
-        this.delay = delay;
-        this.delayC = 0;
+        this.frameSet = frameSet;
+        this.fps = fps;
+
+        this.creationTime = _TIME;
 
         this.loop = loop;
-    }
-
-    updateFrameSet(frames)
-    {
-        this.frameSet = [];
-
-        for (const f of frames)
-        {
-            const TEMPIMG = new Image();
-            TEMPIMG.src = f;
-            this.frameSet.push(f);
-        }
-        this.frame = 0;
     }
     
     
@@ -111,14 +89,24 @@ class StaticObject
             this.updateMore();
     }
 
+    drawIMG(ctx)
+    {
+        let tt = {
+            x:this.t.x-VP.x,
+            y:this.t.y-VP.y,
+            w:this.t.w,
+            h:this.t.h,
+            o:this.t.o
+        };
+        rr.drawImg(ctx, tt, this.imgT, this.c, this.alpha, this.r, this.flip.x, this.flip.y);
+    }
+
     render(ctx = currentCtx)
     {
         switch(this.type)
         {
             case "rect":
             {
-                if (this.name == "StaminaFruit") console.log(this.outc);
-
                 let tt = {
                     x:this.t.x-VP.x,
                     y:this.t.y-VP.y,
@@ -135,40 +123,20 @@ class StaticObject
                 rr.drawCircle(ctx, this.center, this.t.w / 2, this.c, this.alpha);
                 break;
             }
+            
+            case "ani":
+            {
+                this.c = this.frameSet[Math.floor(((_TIME-this.creationTime) % (1000/this.fps*this.frameSet.length)) / (1000/this.fps))];
+                console.log((_TIME-this.creationTime) % (1000/this.fps*this.frameSet.length))
+                console.log(Math.floor(((_TIME-this.creationTime) % (1000/this.fps*this.frameSet.length)) / (1000/this.fps)))
+                this.drawIMG(ctx);
+                break;
+
+            }
 
             case "img":
             {
-                let tt = {
-                    x:this.t.x-VP.x,
-                    y:this.t.y-VP.y,
-                    w:this.t.w,
-                    h:this.t.h,
-                    o:this.t.o
-                };
-                rr.drawImg(ctx, tt, this.imgT, this.c, this.alpha, this.r, this.flip.x, this.flip.y);
-                break;
-            }
-
-            case "ani":
-            {
-                const transform =
-                {
-                    x:this.t.x+this.ro.x,
-                    y:this.t.y+this.ro.y,
-                    w:this.t.w,
-                    h:this.t.h,
-                    o:this.t.o
-                }
-                rr.drawImg(ctx, transform, this.frameSet[this.frame], this.alpha, this.r, this.flip.x, this.flip.y);
-                this.delayC++;
-                if (this.delayC >= this.delay*_DELTATIME)
-                {
-                    if (this.loop)
-                        this.frame = (this.frame+1)%this.frameSet.length;
-                    else if (this.frame != this.frameSet.length-1)
-                        this.frame++;
-                    this.delayC = 0;
-                }
+                this.drawIMG(ctx);
                 break;
             }
 
@@ -228,9 +196,9 @@ class Img extends StaticObject
 
 class Dynamic extends StaticObject
 {
-    constructor(type, {x,y,w,h,o}, c, collider = undefined)
+    constructor(type, {x,y,w,h,o}, c, collider = undefined, frameSet = undefined, fps = 0)
     {
-        super(type, {x,y,w,h,o}, c, collider)
+        super(type, {x,y,w,h,o}, c, collider, frameSet, fps)
         
         this.dynamic = true;
         this.direction = {x:0,y:0};

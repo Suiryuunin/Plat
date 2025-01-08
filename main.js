@@ -56,6 +56,7 @@ let uc = true;
 let graceSec = 0.1;
 let LgraceSec = 0.1;
 let Ljumped = false;
+let canLJump = false;
 let JPressed = false;
 let upDowned = false;
 
@@ -126,6 +127,10 @@ const update = () =>
             if (tsides.l || tsides.r)
             {
                 onLedge = true;
+                if (!keys[JUMPKEY])
+                    canLJump = true;
+                else
+                    canLJump = false;
                 if (tsides.r){
                     ri = true;
                     player1.v.x = 0;
@@ -142,7 +147,7 @@ const update = () =>
             
             if (tsides.t)
             {
-                player1.v.y = 1;
+                player1.v.y += (1-player1.v.y)/4;
             }
             if (tsides.b)
             {
@@ -219,7 +224,7 @@ const update = () =>
         if (dx == 0 && player1.v.x != 0)
         {
             const oldSign = Math.sign(player1.v.x);
-            player1.v.x -= Math.sign(player1.v.x)*(player1.ground.friction != undefined ? player1.ground.friction/2:128)/(1/60)*_DELTATIME;
+            player1.v.x -= Math.sign(player1.v.x)*(player1.ground != undefined ? (player1.ground.friction ? player1.ground.friction/2:128) : 128)/(1/60)*_DELTATIME;
             if (Math.sign(player1.v.x) != oldSign) player1.v.x = 0;
         }
 
@@ -234,7 +239,7 @@ const update = () =>
     }
 
 
-    if (!JPressed && keys[JUMPKEY] && LgraceSec > 0 && !Ljumped)
+    if (!JPressed && keys[JUMPKEY] && LgraceSec > 0 && !Ljumped && canLJump)
     {
         JPressed = true;
         player1.v.y = 1024;
@@ -251,6 +256,8 @@ const update = () =>
         if (keys[JUMPKEY]) upDowned = true;
         if (keys[JUMPKEY] || keys[DOWNKEY])
         {
+            player1.imgT.b = 4;
+
             player1.t.h = ((player1.t.h-16)/1.5)*(1/60)/_DELTATIME+16;
             if ((36 - player1.t.h) > 0)
                 player1.t.w = (36 - player1.t.h)+56;
@@ -332,30 +339,47 @@ const update = () =>
     // Viewport Position
     if (player1.t.y + player1.t.h*player1.t.o.y < VP.y || player1.t.y + player1.t.h*player1.t.o.y + player1.t.h > VP.y+VP.h)
         adjustVY = true;
-
-    VP.x += ((player1.t.x-res.w/2)-VP.x)/16/(1/60)*_DELTATIME;
-
-    if (adjustVY)
-        VP.y += ((player1.t.y-res.h/4*3)-VP.y)/16/(1/60)*_DELTATIME;
-    else
-        VP.y += ((player1.t.y-res.h/4*3)-VP.y)/32/(1/60)*_DELTATIME;
+    
+    if (Math.abs(player1.t.x-res.w/2-VP.x) > 16)
+    {
+        VP.x += ((player1.t.x-res.w/2)-VP.x)/16/(1/60)*_DELTATIME;
+    }
+    if (Math.abs(player1.t.y-res.h/4*3-VP.y) > 16)
+    {
+        if (adjustVY)
+            VP.y += ((player1.t.y-res.h/4*3)-VP.y)/16/(1/60)*_DELTATIME;
+        else
+            VP.y += ((player1.t.y-res.h/4*3)-VP.y)/32/(1/60)*_DELTATIME;
+    }
 
 
     // Restore Height
     if (!(keys[JUMPKEY] || keys[DOWNKEY]))
     {
-        player1.t.h += ((Math.sin(_TIME/512)*4+52)-player1.t.h)/2/(1/60)*_DELTATIME;;
-        player1.t.w += (-Math.sin(_TIME/512)*2+56)-player1.t.w;
-        
-        const ray1 = new Ray(player1.t.x + player1.t.o.x*player1.t.w, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-4, player1.t.x + player1.t.o.x*player1.t.w, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-60);
-        if (player1.grounded && ray1.cast(SCENE, player1).dis < playerH)
+        if (player1.grounded || (onLedge && keys[GRABKEY]) || upDowned)
+        {
+            player1.t.h += ((Math.sin(_TIME/512)*2+58)-player1.t.h)/2/(1/60)*_DELTATIME;
+            player1.imgT.b = 4;
+        }
+        else if (player1.v.y > 0)
+        {
+            player1.t.h = 72;
+            player1.imgT.b = 4;
+        }
+        else
+            player1.imgT.b = 16;
+
+        // player1.t.w += (-Math.sin(_TIME/512)*2+56)-player1.t.w;
+
+
+        if (!(keys[JUMPKEY] || keys[DOWNKEY]))
         {
             const ray = new Ray(player1.t.x + player1.t.o.x*player1.t.w+               (player1.t.w-playerW)/2+1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-4, player1.t.x + player1.t.o.x*player1.t.w+              (player1.t.w-playerW)/2+1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-64);
             const ray2 = new Ray(player1.t.x + player1.t.o.x*player1.t.w + player1.t.w-(player1.t.w-playerW)/2-1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-4, player1.t.x + player1.t.o.x*player1.t.w + player1.t.w-(player1.t.w-playerW)/2-1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-64);
-    
             if (Math.min(ray.cast(SCENE, player1).dis, ray2.cast(SCENE, player1).dis)+4 < playerH)
             {
                 player1.t.h = Math.min(ray.cast(SCENE, player1).dis, ray2.cast(SCENE, player1).dis)+3;
+                player1.imgT.b = 4;
             }
         }
 

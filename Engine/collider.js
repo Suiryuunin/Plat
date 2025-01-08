@@ -20,15 +20,16 @@ class RectCollider
     {
         switch(true)
         {
+            //Plat specific offsets (the +/-1)
             case /*this.parent.v.x < 0 && */l:
             {
-                this.t.x = (x+w+w*o.x)-this.t.w*this.t.o.x;
+                this.t.x = (x+w+w*o.x)-this.t.w*this.t.o.x+(player1.grounded ? 1 : 0);
 
                 return;
             }
             case /*this.parent.v.x > 0 && */r:
             {
-                this.parent.t.x = (x+w*o.x)-this.t.w - this.t.w*this.t.o.x;
+                this.parent.t.x = (x+w*o.x)-this.t.w - this.t.w*this.t.o.x-(player1.grounded ? 1 : 0);
 
                 return;
             }
