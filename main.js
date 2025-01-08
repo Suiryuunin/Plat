@@ -127,11 +127,17 @@ const update = () =>
 
             if (tsides.l || tsides.r)
             {
-                onLedge = true;
-                if (!keys[JUMPKEY] && !keyups[JUMPKEY])
+                if (!onLedge)
+                {
+                    onLedge = true;
+    
+                    if (keys[JUMPKEY])
+                        canLJump = false;
+                    else
+                        canLJump = true;
+                }
+                if (keyups[JUMPKEY])
                     canLJump = true;
-                else
-                    canLJump = false;
                 
                 if (tsides.r){
                     ri = true;
@@ -256,7 +262,7 @@ const update = () =>
 
     if (!keys[JUMPKEY]) JPressed = false;
 
-    if (graceSec > 0)
+    if (graceSec > 0 && (!onLedge || player1.grounded))
     {
         adjustVY = true;
         
@@ -359,10 +365,9 @@ const update = () =>
 
 
     // Restore Height
-    if (!(keys[JUMPKEY] || keys[DOWNKEY]))
+    if ((!(keys[JUMPKEY] || keys[DOWNKEY])) || (onLedge && keys[GRABKEY]))
     {
-        console.log(onLedge)
-        if (player1.grounded || (onLedge && keys[GRABKEY]) || keyups[JUMPKEY])
+        if (player1.grounded || (onLedge && keys[GRABKEY] && !player1.grounded) || keyups[JUMPKEY])
         {
             player1.t.h += ((Math.sin(_TIME/512)*2+58)-player1.t.h)/2/(1/60)*_DELTATIME;
             player1.imgT.b = 4;
@@ -372,8 +377,10 @@ const update = () =>
             player1.t.h = 72;
             player1.imgT.b = 4;
         }
-        else
+        else if (player1.v.y != 0)
             player1.imgT.b = 16;
+        else
+            player1.imgT.b = 4;
 
         // player1.t.w += (-Math.sin(_TIME/512)*2+56)-player1.t.w;
 

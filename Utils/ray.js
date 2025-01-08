@@ -19,7 +19,7 @@ class Ray {
                 const rx2 = obj.hitbox.t.x + (obj.hitbox.t.w*obj.hitbox.t.o.x) + obj.hitbox.t.w;
                 const ry2 = obj.hitbox.t.y + (obj.hitbox.t.h*obj.hitbox.t.o.y) + obj.hitbox.t.h;
 
-                let thits = []
+                let thits = [];
 
                 if (this.x1 == this.x2)
                 {

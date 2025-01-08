@@ -264,9 +264,42 @@ class Dynamic extends StaticObject
         if (this.hitbox)
             this.hitbox.parent = this;
         this.setOldTransform();
-        
-        this.t.y -= this.v.y * _DELTATIME;
-        this.t.x += this.v.x * _DELTATIME;
+
+        if (Math.abs(this.v.x) > 8192 && Math.abs(this.v.y) > 8192)
+        {
+            switch (true)
+            {
+                case this.v.x > 0 && this.v.y > 0:
+                {
+                    const ray = new Ray(player1.t.x + player1.t.o.x*player1.t.w+               (player1.t.w-playerW)/2+1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-4, player1.t.x + player1.t.o.x*player1.t.w+              (player1.t.w-playerW)/2+1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-64);
+                    const ray2 = new Ray(player1.t.x + player1.t.o.x*player1.t.w + player1.t.w-(player1.t.w-playerW)/2-1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-4, player1.t.x + player1.t.o.x*player1.t.w + player1.t.w-(player1.t.w-playerW)/2-1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-64);
+                    if (Math.min(ray.cast(SCENE, player1).dis, ray2.cast(SCENE, player1).dis)+4 < playerH)
+                    {
+                        player1.t.h = Math.min(ray.cast(SCENE, player1).dis, ray2.cast(SCENE, player1).dis)+3;
+                        player1.imgT.b = 4;
+                    }
+                    
+                    break;
+                }
+                case this.v.x > 0 && this.v.y < 0:
+                {
+                    break;
+                }
+                case this.v.x < 0 && this.v.y > 0:
+                {
+                    break;
+                }
+                case this.v.x < 0 && this.v.y < 0:
+                {
+                    break;
+                }
+            }
+        }
+        else
+        {
+            this.t.y -= this.v.y * _DELTATIME;
+            this.t.x += this.v.x * _DELTATIME;
+        }
 
         this.center = {x:this.t.x + this.t.w*this.t.o.x + this.t.w/2, y:this.t.y + this.t.h*this.t.o.y + this.t.h/2};
         if (this.hitbox)
