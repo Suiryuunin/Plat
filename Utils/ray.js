@@ -34,37 +34,38 @@ class Ray {
                 }
                 else
                 {
-                    const a = (this.y2-this.y1)/this.x2-this.x1;
+                    const a = (this.y2-this.y1)/(this.x2-this.x1);
                     const b = this.y1-(a*this.x1);
 
                     let intersect = a*rx1+b;
                     if (intersect >= ry1 && intersect <= ry2)
                     {
                         if (intersect >= Math.min(this.y1,this.y2) && intersect <= Math.max(this.y1,this.y2))
-                            thits.push({x:rx1, y:intersect})
+                            thits.push({x:rx1, y:intersect, side:"l"});
                     }
     
                     intersect = a*rx2+b;
                     if (intersect >= ry1 && intersect <= ry2)
                     {
                         if (intersect >= Math.min(this.y1,this.y2) && intersect <= Math.max(this.y1,this.y2))
-                            thits.push({x:rx2, y:intersect})
+                            thits.push({x:rx2, y:intersect, side:"r"});
                     }
     
                     intersect = (ry1-b)/a;
                     if (intersect >= rx1 && intersect <= rx2)
                     {
                         if (intersect >= Math.min(this.x1,this.x2) && intersect <= Math.max(this.x1,this.x2))
-                            thits.push({x:intersect, y:ry1})
+                            thits.push({x:intersect, y:ry1, side:"t"});
                     }
     
                     intersect = (ry2-b)/a;
                     if (intersect >= rx1 && intersect <= rx2)
                     {
                         if (intersect >= Math.min(this.x1,this.x2) && intersect <= Math.max(this.x1,this.x2))
-                            thits.push({x:intersect, y:ry2})
+                            thits.push({x:intersect, y:ry2, side:"b"});
                     }
                 }
+                
                 
                 let mdis = Infinity;
                 let mi = undefined;
