@@ -98,6 +98,7 @@ const update = () =>
         {
             obj.s = DashPowerUpParam.s;
             obj.filter = `sepia(${obj.s}) hue-rotate(135deg) saturate(4)`;
+            obj.fps = 16;
         }
         else
         {
@@ -126,6 +127,7 @@ const update = () =>
                 target.s = DashPowerDownParam.s;
                 target.l = DashPowerDownParam.l;
                 target.filter = `sepia(${target.s}) hue-rotate(135deg) saturate(2)`;
+                target.fps = 12;
             }
         },
         (target) => {
@@ -177,6 +179,24 @@ const update = () =>
             }
         },
     );
+
+    for (const obj of SCENE.el)
+    {
+        if (obj.name == "StaminaFruit" && AABB(
+                player1.t.x+player1.t.o.x*player1.t.w, player1.t.y+player1.t.o.y*player1.t.h, player1.t.w, player1.t.h,
+                obj.t.x+obj.t.o.x*obj.t.w, obj.t.y+obj.t.o.y*obj.t.h, obj.t.w, obj.t.h
+            )
+            && obj.filter == `sepia(${DashPowerUpParam.s}) hue-rotate(135deg) saturate(4)` && dashLeft == 0)
+        {
+            dashLeft++;
+            obj.s = DashPowerDownParam.s;
+            obj.l = DashPowerDownParam.l;
+            obj.filter = `sepia(${obj.s}) hue-rotate(135deg) saturate(2)`;
+            obj.fps = 12;
+        }
+    }
+
+    
     if (totalCollisions == 0)
     {
         onLedge = false;
@@ -386,7 +406,7 @@ const update = () =>
             break;  
         case 1:
             // Pc = DASHCOLOR;
-            player1.filter = "sepia(1) hue-rotate(135deg)";
+            player1.filter = "sepia(1) hue-rotate(135deg) saturate(4)";
             break;
         case 2:
             player1.filter = "sepia(1) hue-rotate(0deg) saturate(4)";

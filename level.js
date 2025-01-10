@@ -27,8 +27,8 @@ const PLAT = new Dynamic("rect", {x:0,y:1080-256,w:256,h:4, o: {x:0,y:0}}, BGCOL
 PLAT.hitbox.sides = _PLATFORM;
 EDGEB.friction = 128;
 
-const crouchWall = new Dynamic("rect", {x:256,y:1080-12-16-5,     w:1024,h:512, o: {x:0,y:-1}}, BGCOLOR, new RectCollider());
-const crouchWall2 = new Dynamic("rect", {x:1024,y:1080-12-16-5-16-128,     w:128,h:128, o: {x:0,y:-1}}, BGCOLOR, new RectCollider());
+const crouchWall = new Dynamic("rect", {x:256,y:1080-12-16-5,     w:128,h:512, o: {x:0,y:-1}}, BGCOLOR, new RectCollider());
+const crouchWall2 = new Dynamic("rect", {x:1024,y:1080-12-16-5-16,     w:128,h:256, o: {x:0,y:-1}}, BGCOLOR, new RectCollider());
 const point = new Dynamic("circle", {x:8,y:8,     w:8,h:8, o: {x:-.5,y:-.5}}, "yellow");
 
 const SF = new Dynamic("ani", {x:1024+256,y:1080-512,     w:64,h:64, o: {x:0,y:-1}}, A_DASHP[0], new RectCollider(), A_DASHP, 16);

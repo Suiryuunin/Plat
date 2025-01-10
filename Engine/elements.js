@@ -311,7 +311,6 @@ class Dynamic extends StaticObject
 
             const result = ray.cast(SCENE, player1);
 
-            console.log(result.hit)
             if (result.dis < Math.sqrt((this.v.x*_DELTATIME)**2 + (this.v.y*_DELTATIME)**2))
             {
                 point.t.x = result.hit.x;
@@ -322,7 +321,6 @@ class Dynamic extends StaticObject
                         player1.t.x = result.hit.x-(player1.t.w/2)-(player1.t.w*player1.t.o.x);
                         player1.t.y = result.hit.y-((player1.t.h/2)/(-player1.v.x)*player1.v.y);
                         point.t.y = result.hit.y;
-                        console.log(result.hit)
                         break;
                     }
                     case "r":
