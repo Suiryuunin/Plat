@@ -50,7 +50,9 @@ class StaticObject
         this.outc = OUTLINECOLOR;
         this.oc = c;
         this.ooutc = this.outc;
-        this.red = 255;
+        
+        this.filter = "";
+
         this.ro = {x:0,y:0};
         this.hovering = false;
         this.visible = true;
@@ -89,7 +91,7 @@ class StaticObject
             this.updateMore();
     }
 
-    drawIMG(ctx)
+    drawIMG(ctx = currentCtx)
     {
         let tt = {
             x:this.t.x-VP.x,
@@ -98,7 +100,9 @@ class StaticObject
             h:this.t.h,
             o:this.t.o
         };
+        ctx.filter = this.filter;
         rr.drawImg(ctx, tt, this.imgT, this.c, this.alpha, this.r, this.flip.x, this.flip.y);
+        ctx.filter = "none";
     }
 
     render(ctx = currentCtx)

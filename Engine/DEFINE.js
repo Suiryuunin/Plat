@@ -1,4 +1,4 @@
-const res = {w:1920, h:1080};
+const res = {w:1280, h:720};
 
 
 //Collision preset
@@ -41,3 +41,5 @@ I_PLAYER.src = "Assets/Textures/player.png";
 
 const A_PLAYER = [new Image(128,128),new Image(128,128),new Image(128,128)];
 AssignAniFrames(A_PLAYER, "Assets/Textures/Player/p000", ".png");
+const A_DASHP = [new Image(128,128),new Image(128,128),new Image(128,128)];
+AssignAniFrames(A_DASHP, "Assets/Textures/DashP/frame000", ".png");

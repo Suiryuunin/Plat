@@ -17,22 +17,24 @@ let JUMPKEY = "KeyK";
 let GRABKEY = "KeyL";
 
 
-let DASHCOLOR = {
-    r:0,
-    g:255,
-    b:255
+const DASHCOLOR = {
+    h:192,
+    s:56,
+    l:72
 };
 const _DASHTSteps = Math.round(256/(1/60));
 let DASHTSteps = _DASHTSteps;
 
+const DashPowerUpParam = {
+    s:1,
+    l:1
+};
+const DashPowerDownParam = {
+    s:0,
+    l:2
+};
 
-for (const obj of SCENE.SF)
-{
-    obj.r = DASHCOLOR.r;
-    obj.g = DASHCOLOR.g;
-    obj.b = DASHCOLOR.b;
-    obj.outc = `rbg(${obj.r}, ${obj.g}, ${obj.b})`;
-}
+
 
 // Viewport
 const VP = {
@@ -63,35 +65,45 @@ let dashed = false;
 let dashStop = false;
 let dsec = 0;
 let dSsec = 0;
-let dashLeft = 1;
+let dashLeft = 0;
 
 let dst = undefined;
 let dsa = 1;
 
+let Pc = {
+    h: 0,
+    s:50,
+    l:100
+}
+
 let onLedge = false;
 
+SF.s=1;
+SF.l=1;
+
+SF.filter = `sepia(${DashPowerUpParam.s}) hue-rotate(135deg) saturate(4)`;
 const update = () =>
 {
     SCENE.update();
 
     DASHTSteps = Math.round(_DASHTSteps * _DELTATIME);
+
+
+    // Reset filter
     for (const obj of SCENE.SF)
     {
-        if (obj.outc == `rbg(${DASHCOLOR.r}, ${DASHCOLOR.g}, ${DASHCOLOR.b})`) break;
+        if (obj.filter == `sepia(${DashPowerUpParam.s}) hue-rotate(135deg) saturate(4)`) break;
 
-        if (Math.abs(obj.r - DASHCOLOR.r) < 1 && Math.abs(obj.g - DASHCOLOR.g) < 1 && Math.abs(obj.b - DASHCOLOR.b) < 1)
+        if (Math.abs(DashPowerUpParam.s - obj.s) < 0.1)
         {
-            obj.r = DASHCOLOR.r;
-            obj.g = DASHCOLOR.g;
-            obj.b = DASHCOLOR.b;
+            obj.s = DashPowerUpParam.s;
+            obj.filter = `sepia(${obj.s}) hue-rotate(135deg) saturate(4)`;
         }
         else
         {
-            obj.r += (DASHCOLOR.r - OCrgb.r)/DASHTSteps;
-            obj.g += (DASHCOLOR.g - OCrgb.g)/DASHTSteps;
-            obj.b += (DASHCOLOR.b - OCrgb.b)/DASHTSteps;
+            obj.s += (DashPowerUpParam.s - DashPowerDownParam.s)/128/(1/60)*_DELTATIME;
             
-            obj.outc = `rbg(${obj.r}, ${obj.g}, ${obj.b})`;
+            obj.filter = `sepia(${obj.s}) hue-rotate(135deg) saturate(2)`;
         }
     }
 
@@ -108,13 +120,12 @@ const update = () =>
     SCENE.collisionsWith (
         player1, (target) => {
             totalCollisions++;
-            if (target.name == "StaminaFruit" && target.outc == `rbg(${DASHCOLOR.r}, ${DASHCOLOR.g}, ${DASHCOLOR.b})` && dashLeft == 0)
+            if (target.name == "StaminaFruit" && target.filter == `sepia(${DashPowerUpParam.s}) hue-rotate(135deg) saturate(4)` && dashLeft == 0)
             {
                 dashLeft++;
-                target.r = OCrgb.r;
-                target.g = OCrgb.g;
-                target.b = OCrgb.b;
-                target.outc = `rbg(${target.r}, ${target.g}, ${target.b})`;
+                target.s = DashPowerDownParam.s;
+                target.l = DashPowerDownParam.l;
+                target.filter = `sepia(${target.s}) hue-rotate(135deg) saturate(2)`;
             }
         },
         (target) => {
@@ -216,7 +227,6 @@ const update = () =>
     if (player1.grounded)
     {
         player1.v.y = 0;
-        dashLeft = 1;
     }
 
     if (ri && dx > 0 || le && dx < 0)
@@ -312,7 +322,24 @@ const update = () =>
         player1.v.x = 0;
         player1.v.y = 0;
         if (ldx == 0 && ldy == 0 && dx == 0 && dy == 0)
-            player1.v.x = 16384*(1/60)/_DELTATIME;
+        {
+            switch (lWasd)
+            {
+                case LEFTKEY:
+                    player1.v.x = -16384*(1/60)/_DELTATIME;
+                    break;
+                case RIGHTKEY:
+                    player1.v.x = 16384*(1/60)/_DELTATIME;
+                    break;
+                case UPKEY:
+                    player1.v.y = 16384*(1/60)/_DELTATIME;
+                    break;
+                case DOWNKEY:
+                    player1.v.y = -16384*(1/60)/_DELTATIME;
+                    break;
+                    
+            }
+        }
         else
         {
             if (dx == 0 && dy == 0)
@@ -347,6 +374,29 @@ const update = () =>
     }
 
 
+    // Player color
+    switch (dashLeft)
+    {
+        case 0:
+            // Pc.h=192;
+            // Pc.s=50;
+            // Pc.l=100;
+
+            player1.filter = "";
+            break;  
+        case 1:
+            // Pc = DASHCOLOR;
+            player1.filter = "sepia(1) hue-rotate(135deg)";
+            break;
+        case 2:
+            player1.filter = "sepia(1) hue-rotate(0deg) saturate(4)";
+            break;
+    }
+
+    lightColor = `hsl(${Pc.h}deg ${Pc.s}% ${Pc.l})`;
+
+
+
     // Viewport Position
     if (player1.t.y + player1.t.h*player1.t.o.y < VP.y || player1.t.y + player1.t.h*player1.t.o.y + player1.t.h > VP.y+VP.h)
         adjustVY = true;
@@ -363,14 +413,33 @@ const update = () =>
             VP.y += ((player1.t.y-res.h/4*3)-VP.y)/32/(1/60)*_DELTATIME;
     }
 
+    VP.x = Math.round(VP.x);
+    VP.y = Math.round(VP.y);
+
 
     // Restore Height
     if ((!(keys[JUMPKEY] || keys[DOWNKEY])) || (onLedge && keys[GRABKEY]))
     {
         if (player1.grounded || (onLedge && keys[GRABKEY] && !player1.grounded) || keyups[JUMPKEY])
         {
-            player1.t.h += ((Math.sin(_TIME/512)*2+58)-player1.t.h)/2/(1/60)*_DELTATIME;
+            player1.t.h += ((Math.sin(_TIME/512)*3+62)-player1.t.h)/2/(1/60)*_DELTATIME;
             player1.imgT.b = 4;
+        }
+        else if (dashed)
+        {
+            switch (true)
+            {
+                case Math.abs(player1.v.x) > 8192 && Math.abs(player1.v.y) > 8192:
+                    player1.t.w = 60;
+                    player1.t.h = 60;
+                    break;
+                case Math.abs(player1.v.x) > 8192:
+                    player1.t.w = 72;
+                    break;
+                case Math.abs(player1.v.y) > 8192:
+                    player1.t.h = 72;
+                    break;
+            }
         }
         else if (player1.v.y > 0)
         {
@@ -385,20 +454,20 @@ const update = () =>
         // player1.t.w += (-Math.sin(_TIME/512)*2+56)-player1.t.w;
 
 
+        // Raycast to fit under
         if (!(keys[JUMPKEY] || keys[DOWNKEY]))
         {
             const ray = new Ray(player1.t.x + player1.t.o.x*player1.t.w+               (player1.t.w-playerW)/2+1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-4, player1.t.x + player1.t.o.x*player1.t.w+              (player1.t.w-playerW)/2+1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-64);
             const ray2 = new Ray(player1.t.x + player1.t.o.x*player1.t.w + player1.t.w-(player1.t.w-playerW)/2-1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-4, player1.t.x + player1.t.o.x*player1.t.w + player1.t.w-(player1.t.w-playerW)/2-1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-64);
-            if (Math.min(ray.cast(SCENE, player1).dis, ray2.cast(SCENE, player1).dis)+4 < playerH)
+
+            const result = [ray.cast(SCENE, player1), ray2.cast(SCENE, player1)];
+
+            if (Math.min(result[0].dis, result[1].dis)+4 < playerH)
             {
-                player1.t.h = Math.min(ray.cast(SCENE, player1).dis, ray2.cast(SCENE, player1).dis)+3;
+                player1.t.h = Math.min(result[0].dis, result[1].dis)+3;
                 player1.imgT.b = 4;
             }
         }
-
-        // point.t.x = (ray.cast(SCENE, player1).hit != undefined ? ray.cast(SCENE, player1).hit.x : 0);
-        // point.t.y = (ray.cast(SCENE, player1).hit != undefined ? ray.cast(SCENE, player1).hit.y : 0);
-        // console.log(Math.min(ray.cast(SCENE, player1).dis, ray2.cast(SCENE, player1).dis))
     }
 
     if (keyups[JUMPKEY])
@@ -463,13 +532,10 @@ const render = () =>
     rr.render();
 };
 
-const keys = {
-    "KeyW": false,
-    "KeyS": false,
-    "KeyA": false,
-    "KeyD": false
-}
-const keyups = {};
+const keys   = {},
+      keyups = {};
+
+let lWasd = RIGHTKEY;
 
 window.addEventListener("keydown", (e) => {
     if (keys[e.code]) return;
@@ -503,6 +569,8 @@ window.addEventListener("keydown", (e) => {
     }
 
     keys[e.code] = true;
+    if (e.code == LEFTKEY || e.code == RIGHTKEY || e.code == UPKEY || e.code == DOWNKEY)
+        lWasd = e.code;
 });
 window.addEventListener("keyup", (e) => {
     if (e.code == UPKEY && keys[e.code] && dy > -1)

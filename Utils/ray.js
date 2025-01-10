@@ -7,9 +7,10 @@ class Ray {
         this.y2 = y2;
     }
 
-    cast(scene, exc)
+    cast(scene, exc, skipTrigger = true)
     {
         let hits = [];
+        let triggerItems = [];
 
         scene.elements.callNodeMethods((obj) => {
             if (obj != exc && obj.hitbox != undefined)
@@ -26,10 +27,10 @@ class Ray {
                     if (this.x1 >= rx1 && this.x1 <= rx2)
                     {
                         if (ry1 >= Math.min(this.y1,this.y2) && ry1 <= Math.max(this.y1,this.y2))
-                            thits.push({x:this.x1, y:ry1});
+                            thits.push({x:this.x1, y:ry1, side:"t", trigger:obj.hitbox.trigger});
                         
                         if (ry2 >= Math.min(this.y1,this.y2) && ry2 <= Math.max(this.y1,this.y2))
-                            thits.push({x:this.x1, y:ry2});
+                            thits.push({x:this.x1, y:ry2, side:"b", trigger:obj.hitbox.trigger});
                     }
                 }
                 else
@@ -41,36 +42,39 @@ class Ray {
                     if (intersect >= ry1 && intersect <= ry2)
                     {
                         if (intersect >= Math.min(this.y1,this.y2) && intersect <= Math.max(this.y1,this.y2))
-                            thits.push({x:rx1, y:intersect, side:"l"});
+                            thits.push({x:rx1, y:intersect, side:"l", trigger:obj.hitbox.trigger});
                     }
     
                     intersect = a*rx2+b;
                     if (intersect >= ry1 && intersect <= ry2)
                     {
                         if (intersect >= Math.min(this.y1,this.y2) && intersect <= Math.max(this.y1,this.y2))
-                            thits.push({x:rx2, y:intersect, side:"r"});
+                            thits.push({x:rx2, y:intersect, side:"r", trigger:obj.hitbox.trigger});
                     }
     
                     intersect = (ry1-b)/a;
                     if (intersect >= rx1 && intersect <= rx2)
                     {
                         if (intersect >= Math.min(this.x1,this.x2) && intersect <= Math.max(this.x1,this.x2))
-                            thits.push({x:intersect, y:ry1, side:"t"});
+                            thits.push({x:intersect, y:ry1, side:"t", trigger:obj.hitbox.trigger});
                     }
     
                     intersect = (ry2-b)/a;
                     if (intersect >= rx1 && intersect <= rx2)
                     {
                         if (intersect >= Math.min(this.x1,this.x2) && intersect <= Math.max(this.x1,this.x2))
-                            thits.push({x:intersect, y:ry2, side:"b"});
+                            thits.push({x:intersect, y:ry2, side:"b", trigger:obj.hitbox.trigger});
                     }
                 }
                 
-                
+
                 let mdis = Infinity;
                 let mi = undefined;
                 for (let i = 0; i < thits.length; i++)
                 {
+                    if (thits[i].trigger)
+                        triggerItems.push(obj);
+
                     const dis = Math.sqrt((thits[i].x-this.x1)**2+(thits[i].y-this.y1)**2);
                     mdis = Math.min(mdis, dis);
 
@@ -85,12 +89,15 @@ class Ray {
         let mi = undefined;
         for (let i = 0; i < hits.length; i++)
         {
+            if (triggerItems.length > 0 && skipTrigger) break;
+            
+            
             const dis = Math.sqrt((hits[i].x-this.x1)**2+(hits[i].y-this.y1)**2);
             mdis = Math.min(mdis, dis);
 
             if (mdis == dis) mi = i;
         }
 
-        return {hit:hits[mi], dis:mdis};
+        return {hit:hits[mi], dis:mdis, trigger:triggerItems};
     }
 }

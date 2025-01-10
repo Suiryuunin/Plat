@@ -215,12 +215,31 @@ class Renderer
 
     render()
     {
-        this.display.imageSmoothingEnabled = true;
+        this.display.imageSmoothingEnabled = false;
 
         this.display.drawImage(currentCtx.canvas,
             0, 0,
             Math.floor(currentCtx.canvas.width/*/_DOWNSCALE*/), Math.floor(currentCtx.canvas.height/*/_DOWNSCALE*/),
             0, 0,
-            this.display.canvas.width, this.display.canvas.height);
+            this.display.canvas.width, this.display.canvas.height
+        );
+            
+        DARKCTX.globalCompositeOperation = 'source-over';
+        DARKCTX.fillStyle = `rgba(0,0,0,1)`;
+        DARKCTX.fillRect(0, 0, res.w, res.h);
+        
+        addLight(player1.center.x-VP.x,player1.center.y-VP.y, 0,player1.center.x-VP.x,player1.center.y-VP.y, 512);
+
+        DARKCTX.globalCompositeOperation = 'source-over';
+
+        this.display.globalCompositeOperation = "multiply";
+        this.display.drawImage(DARKCTX.canvas,
+            0, 0,
+            DARKCTX.canvas.width, DARKCTX.canvas.height,
+            0, 0,
+            this.display.canvas.width, this.display.canvas.height
+        );
+
+        this.display.globalCompositeOperation = "source-over";
     }
 }
