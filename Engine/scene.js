@@ -6,6 +6,7 @@ class Scene
     {
         this.elements = new LinkedList();
         this.el = [];
+        this.PLAt = [];
         this.SF = [];
         this.SSF = [];
         this.CP = [];
@@ -20,6 +21,11 @@ class Scene
     add(value)
     {
         this.elements.addNode(value);
+        this.el=[];
+        this.elements.callNodeMethods((obj) =>
+        {
+            this.el.push(obj);
+        });
     }
 
     addBulk(valArray)

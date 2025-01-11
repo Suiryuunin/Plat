@@ -26,38 +26,6 @@ player1.die = () => {
     rCooldoown = 1;
 };
 
-const pad2 = new Dynamic("rect", {x:1920-64,y:1080/2-64,w:32,h:128, o: {x:-1,y:0}}, BGCOLOR, new RectCollider());
-
-const EDGEL = new Dynamic("rect", {x:8,    y:0, w:4,h:1080, o: {x:-1,y:0}},  BGCOLOR, new RectCollider());
-const EDGER = new Dynamic("rect", {x:1920-8,y:0,w:4,h:1080, o: {x:0,y:0}}, BGCOLOR, new RectCollider());
-const EDGET = new Dynamic("rect", {x:0,y:8,     w:1920,h:4, o: {x:0,y:-1}},  BGCOLOR, new RectCollider());
-const EDGEB = new Dynamic("rect", {x:0,y:1080-8,w:1920,h:4, o: {x:0,y:0}}, BGCOLOR, new RectCollider());
-
-const PLAT = new Dynamic("rect", {x:0,y:1080-256,w:256,h:4, o: {x:0,y:0}}, BGCOLOR, new RectCollider());
-PLAT.hitbox.sides = _PLATFORM;
-EDGEB.friction = 128;
-
-const crouchWall = new Dynamic("rect", {x:256,y:1080-12-16-5,     w:128,h:512, o: {x:0,y:-1}}, BGCOLOR, new RectCollider());
-const crouchWall2 = new Dynamic("rect", {x:1024,y:1080-12-16-5-16,     w:128,h:256, o: {x:0,y:-1}}, BGCOLOR, new RectCollider());
-const point = new Dynamic("circle", {x:8,y:8,     w:8,h:8, o: {x:-.5,y:-.5}}, "yellow");
-
-const SF = new Dynamic("ani", {x:1024+256-256,y:1080-512,     w:64,h:64, o: {x:0,y:-1}}, A_DASHP[0], new RectCollider(), A_DASHP, 16);
-const SSF = new Dynamic("ani", {x:1024+256-128,y:1080-512,     w:64,h:64, o: {x:0,y:-1}}, A_DASHP[0], new RectCollider(), A_DASHP, 16);
-
-SCENE.init(player1);
-SCENE.addBulk([point,EDGEL,EDGER, EDGEB, EDGET, crouchWall, crouchWall2, PLAT]);
-SCENE.SSF.push(SSF);
-SCENE.SF.push(SF, ...SCENE.SSF);
-
-SCENE.addBulk([...SCENE.SF, ...SCENE.SSF]);
-
-for (const ssf of SCENE.SSF)
-{
-    ssf.double = true;
-}
-
-
-
 const DashPowerUpParam = {
     s:1,
     l:1
@@ -76,19 +44,36 @@ const DASHS2 = 4;
 const DASHLS1 = 2;
 const DASHLS2 = 2;
 
-for (const sf of SCENE.SF)
-{
-    sf.name = "StaminaFruit";
-    sf.hitbox.trigger = true;
-    sf.s=1;
+const pad2 = new Dynamic("rect", {x:1920-64,y:1080/2-64,w:32,h:128, o: {x:-1,y:0}}, BGCOLOR, new RectCollider());
 
-    sf.filter = `sepia(${DashPowerUpParam.s}) hue-rotate(${sf.double?DASHH2:DASHH1}deg) saturate(${sf.double?DASHS2:DASHS1})`;
-}
+const EDGEL = new Dynamic("rect", {x:8,    y:0, w:4,h:1080, o: {x:-1,y:0}},  BGCOLOR, new RectCollider());
+const EDGER = new Dynamic("rect", {x:1920-8,y:0,w:4,h:1080, o: {x:0,y:0}}, BGCOLOR, new RectCollider());
+const EDGET = new Dynamic("rect", {x:0,y:8,     w:1920,h:4, o: {x:0,y:-1}},  BGCOLOR, new RectCollider());
+const EDGEB = new Dynamic("rect", {x:0,y:1080-8,w:1920,h:4, o: {x:0,y:0}}, BGCOLOR, new RectCollider());
+
+const PLAT = new Dynamic("rect", {x:0,y:1080-256,w:256,h:4, o: {x:0,y:0}}, BGCOLOR, new RectCollider());
+PLAT.hitbox.sides = _PLATFORM;
+EDGEB.friction = 128;
+
+const crouchWall = new Dynamic("rect", {x:256,y:1080-12-16-5,     w:128,h:512, o: {x:0,y:-1}}, BGCOLOR, new RectCollider());
+const crouchWall2 = new Dynamic("rect", {x:1024,y:1080-12-16-5-16,     w:128,h:256, o: {x:0,y:-1}}, BGCOLOR, new RectCollider());
+const point = new Dynamic("circle", {x:8,y:8,     w:8,h:8, o: {x:-.5,y:-.5}}, "yellow");
+
+const SF = new DashOrb(1024+256-256,1080-512);
+const SSF = new DashOrbII(1024+256-128,1080-512);
+
+SCENE.init(player1);
+SCENE.addBulk([point,EDGEL,EDGER, EDGEB, EDGET, crouchWall, crouchWall2, PLAT]);
+
+
+
+
+
 
 
 
 // Checkpoint
-const cp = new Checkpoint({x:128,y:1080-12-16-5});
+const cp = new Checkpoint(128,1080-12-16-5);
 
 SCENE.CP.push(cp);
 
@@ -99,3 +84,6 @@ window.addEventListener('keyup', (e)=>{
     if (e.code == "KeyH")
         player1.die();
 });
+
+
+SCENE.addBulk([...SCENE.SF, ...SCENE.SSF]);
