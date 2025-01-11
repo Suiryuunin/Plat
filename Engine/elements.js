@@ -275,33 +275,6 @@ class Dynamic extends StaticObject
 
         if (Math.abs(this.v.x) > 8192 && Math.abs(this.v.y) > 8192)
         {
-            // switch (true)
-            // {
-            //     case this.v.x > 0 && this.v.y > 0:
-            //     {
-            //         const ray = new Ray(player1.t.x + player1.t.o.x*player1.t.w+               (player1.t.w-playerW)/2+1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-4, player1.t.x + player1.t.o.x*player1.t.w+              (player1.t.w-playerW)/2+1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-64);
-            //         // const ray2 = new Ray(player1.t.x + player1.t.o.x*player1.t.w + player1.t.w-(player1.t.w-playerW)/2-1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-4, player1.t.x + player1.t.o.x*player1.t.w + player1.t.w-(player1.t.w-playerW)/2-1, player1.t.y+player1.t.o.y*player1.t.h+player1.t.h-64);
-            //         if (Math.min(ray.cast(SCENE, player1).dis, ray2.cast(SCENE, player1).dis)+4 < playerH)
-            //         {
-                        
-            //         }
-                    
-            //         break;
-            //     }
-            //     case this.v.x > 0 && this.v.y < 0:
-            //     {
-            //         break;
-            //     }
-            //     case this.v.x < 0 && this.v.y > 0:
-            //     {
-            //         break;
-            //     }
-            //     case this.v.x < 0 && this.v.y < 0:
-            //     {
-            //         break;
-            //     }
-            // }
-
             const ray = new Ray(
                 (player1.t.x+player1.t.o.x*player1.t.w)+player1.t.w/2,
                 (player1.t.y+player1.t.o.y*player1.t.h)+player1.t.h/2,
@@ -350,6 +323,27 @@ class Dynamic extends StaticObject
             {
                 this.t.x += this.v.x * _DELTATIME;
                 this.t.y -= this.v.y * _DELTATIME;
+            }
+
+            if (result.triggered.length > 0)
+            {
+                let mdis = Infinity;
+                let mi = undefined;
+
+                for (let i = 0; i < result.triggered.length; i++)
+                {
+                    mdis = Math.min(mdis, result.triggered[i][1]);
+
+                    if (mdis == result.triggered[i][1]) mi = i;
+                }
+
+                if (result.triggered.name == "StaminaFruit")
+                    DashPowerUp(result.triggered[mi][0]);
+                else if (result.triggered.name == "checkpoint")
+                {
+                    player1.cp = {x:result.triggered.t.x, y:result.triggered.t.y};
+                    player1.LCP = result.triggered;
+                }
             }
         }
         else

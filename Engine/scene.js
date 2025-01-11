@@ -7,6 +7,8 @@ class Scene
         this.elements = new LinkedList();
         this.el = [];
         this.SF = [];
+        this.SSF = [];
+        this.CP = [];
     }
 
     init(value)
@@ -44,7 +46,7 @@ class Scene
     {
         for (const obj of this.el)
         {
-            if (!(object === obj) && object.collideWith(obj, rR, rRR))
+            if (object.visible && !(object === obj) && object.collideWith(obj, rR, rRR))
             {
                 if (callback != undefined) callback(obj);
             }

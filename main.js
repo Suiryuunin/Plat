@@ -7,6 +7,8 @@ const resize = () =>
 
 };
 
+let rCooldoown = 0;
+
 //KEYBINDS default
 let UPKEY = "KeyW";
 let DOWNKEY = "KeyS";
@@ -22,18 +24,6 @@ const DASHCOLOR = {
     s:56,
     l:72
 };
-const _DASHTSteps = Math.round(256/(1/60));
-let DASHTSteps = _DASHTSteps;
-
-const DashPowerUpParam = {
-    s:1,
-    l:1
-};
-const DashPowerDownParam = {
-    s:0,
-    l:2
-};
-
 
 
 // Viewport
@@ -42,7 +32,7 @@ const VP = {
     y:player1.t.y-res.h/4*3,
     w:res.w,
     h:res.h
-}
+};
 let adjustVY = false;
 
 
@@ -78,33 +68,39 @@ let Pc = {
 
 let onLedge = false;
 
-SF.s=1;
-SF.l=1;
 
-SF.filter = `sepia(${DashPowerUpParam.s}) hue-rotate(135deg) saturate(4)`;
+
+function DashPowerUp(sf)
+{
+    dashLeft=sf.double?2:1;
+    sf.s = DashPowerDownParam.s;
+    sf.l = DashPowerDownParam.l;
+    sf.filter = `sepia(${sf.s}) hue-rotate(${sf.double?DASHH2:DASHH1}deg) saturate(${sf.double?DASHS2:DASHS1})`;
+    sf.fps = 12;
+}
+
 const update = () =>
 {
     SCENE.update();
-
-    DASHTSteps = Math.round(_DASHTSteps * _DELTATIME);
 
 
     // Reset filter
     for (const obj of SCENE.SF)
     {
-        if (obj.filter == `sepia(${DashPowerUpParam.s}) hue-rotate(135deg) saturate(4)`) break;
-
-        if (Math.abs(DashPowerUpParam.s - obj.s) < 0.1)
+        if (!(obj.filter == `sepia(${DashPowerUpParam.s}) hue-rotate(${obj.double?DASHH2:DASHH1}deg) saturate(${obj.double?DASHS2:DASHS1})`))
         {
-            obj.s = DashPowerUpParam.s;
-            obj.filter = `sepia(${obj.s}) hue-rotate(135deg) saturate(4)`;
-            obj.fps = 16;
-        }
-        else
-        {
-            obj.s += (DashPowerUpParam.s - DashPowerDownParam.s)/128/(1/60)*_DELTATIME;
-            
-            obj.filter = `sepia(${obj.s}) hue-rotate(135deg) saturate(2)`;
+            if (Math.abs(DashPowerUpParam.s - obj.s) < 0.1)
+            {
+                obj.s = DashPowerUpParam.s;
+                obj.filter = `sepia(${obj.s}) hue-rotate(${obj.double?DASHH2:DASHH1}deg) saturate(${obj.double?DASHS2:DASHS1})`;
+                obj.fps = 16;
+            }
+            else
+            {
+                obj.s += (DashPowerUpParam.s - DashPowerDownParam.s)/128/(1/60)*_DELTATIME;
+                
+                obj.filter = `sepia(${obj.s}) hue-rotate(${obj.double?DASHH2:DASHH1}deg) saturate(${obj.double?DASHLS2:DASHLS1})`;
+            }
         }
     }
 
@@ -119,22 +115,24 @@ const update = () =>
 
     let totalCollisions = 0;
     SCENE.collisionsWith (
-        player1, (target) => {
+        player1, (obj) => {
             totalCollisions++;
-            if (target.name == "StaminaFruit" && target.filter == `sepia(${DashPowerUpParam.s}) hue-rotate(135deg) saturate(4)` && dashLeft == 0)
+            if (obj.name == "StaminaFruit" && obj.filter == `sepia(${DashPowerUpParam.s}) hue-rotate(${obj.double?DASHH2:DASHH1}deg) saturate(${obj.double?DASHS2:DASHS1})` && dashLeft < (obj.double?2:1))
             {
-                dashLeft++;
-                target.s = DashPowerDownParam.s;
-                target.l = DashPowerDownParam.l;
-                target.filter = `sepia(${target.s}) hue-rotate(135deg) saturate(2)`;
-                target.fps = 12;
+                DashPowerUp(obj);
+            }
+            else
+            if (obj.name == "checkpoint")
+            {
+                player1.cp = {x:obj.t.x, y:obj.t.y};
+                player1.LCP = obj;
             }
         },
-        (target) => {
+        (obj) => {
             
         },
-        (target, tsides) => {
-            if (target.trigger)
+        (obj, tsides) => {
+            if (obj.trigger)
                 return;
 
 
@@ -173,26 +171,22 @@ const update = () =>
             if (tsides.b)
             {
                 player1.grounded = true;
-                player1.ground = target.parent;
-                player1.friction = target.parent.friction;
+                player1.ground = obj.parent;
+                player1.friction = obj.parent.friction;
                 graceSec = 0.1;
             }
         },
     );
 
-    for (const obj of SCENE.el)
+    for (const obj of SCENE.SF)
     {
-        if (obj.name == "StaminaFruit" && AABB(
+        if (AABB(
                 player1.t.x+player1.t.o.x*player1.t.w, player1.t.y+player1.t.o.y*player1.t.h, player1.t.w, player1.t.h,
                 obj.t.x+obj.t.o.x*obj.t.w, obj.t.y+obj.t.o.y*obj.t.h, obj.t.w, obj.t.h
             )
-            && obj.filter == `sepia(${DashPowerUpParam.s}) hue-rotate(135deg) saturate(4)` && dashLeft == 0)
+            && obj.filter == `sepia(${DashPowerUpParam.s}) hue-rotate(${obj.double?DASHH2:DASHH1}deg) saturate(${obj.double?DASHS2:DASHS1})` && dashLeft == 0)
         {
-            dashLeft++;
-            obj.s = DashPowerDownParam.s;
-            obj.l = DashPowerDownParam.l;
-            obj.filter = `sepia(${obj.s}) hue-rotate(135deg) saturate(2)`;
-            obj.fps = 12;
+            DashPowerUp(obj);
         }
     }
 
@@ -220,6 +214,12 @@ const update = () =>
     }
     else dst = undefined;
 
+
+    
+    if (player1.LCP == undefined || (player1.LCP.visible)) rCooldoown = 0;
+
+
+
     if (onLedge && keys[GRABKEY] && (player1.v.y < -16))
     {
         adjustVY = true;
@@ -234,8 +234,8 @@ const update = () =>
     }
     else
     {
-        if (!dashed || (dashed && player1.v.y < 1))
-            player1.v.y-= dsec > 0 ? 4/(1/60)*_DELTATIME : 128/(1/60)*_DELTATIME;
+        if ((!dashed || (dashed && player1.v.y < 1)) && rCooldoown == 0)
+            player1.v.y-= dsec > 0 ? 4/(1/60)*_DELTATIME : 96/(1/60)*_DELTATIME;
         else
         {
             // player1.v.y -= player1.v.y/2;
@@ -243,6 +243,7 @@ const update = () =>
             player1.v.y = 0;
         }
     }
+
 
     if (player1.grounded)
     {
@@ -309,7 +310,7 @@ const update = () =>
         {
             if (keyups[JUMPKEY])
             {
-                player1.v.y = ((playerH - player1.t.h)/(playerH/2)*36)**2/1.2;
+                player1.v.y = ((playerH - player1.t.h)/(playerH/2)*36)**2/1.5;
                 graceSec = 0;
             }
 
@@ -318,7 +319,10 @@ const update = () =>
     }
 
 
-    // Dash
+      //////////
+     // Dash //
+    //////////
+
     if (!keys[DASHKEY] && dashed)
     {
         dashStop = false;
@@ -406,10 +410,10 @@ const update = () =>
             break;  
         case 1:
             // Pc = DASHCOLOR;
-            player1.filter = "sepia(1) hue-rotate(135deg) saturate(4)";
+            player1.filter = `sepia(1) hue-rotate(${DASHH1}deg) saturate(${DASHS1})`;
             break;
         case 2:
-            player1.filter = "sepia(1) hue-rotate(0deg) saturate(4)";
+            player1.filter = `sepia(1) hue-rotate(${DASHH2}deg) saturate(${DASHS2})`;
             break;
     }
 
@@ -418,7 +422,7 @@ const update = () =>
 
 
     // Viewport Position
-    if (player1.t.y + player1.t.h*player1.t.o.y < VP.y || player1.t.y + player1.t.h*player1.t.o.y + player1.t.h > VP.y+VP.h)
+    if (player1.t.y + player1.t.h*player1.t.o.y < VP.y)
         adjustVY = true;
     
     if (Math.abs(player1.t.x-res.w/2-VP.x) > 16)
@@ -427,10 +431,31 @@ const update = () =>
     }
     if (Math.abs(player1.t.y-res.h/4*3-VP.y) > 16)
     {
-        if (adjustVY)
-            VP.y += ((player1.t.y-res.h/4*3)-VP.y)/16/(1/60)*_DELTATIME;
-        else
-            VP.y += ((player1.t.y-res.h/4*3)-VP.y)/32/(1/60)*_DELTATIME;
+        switch (true)
+        {
+            case (adjustVY):
+                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/16/(1/60)*_DELTATIME;
+                break;
+            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-128 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-64):
+                VP.y += ((player1.t.y-res.h*.75)-VP.y)/12/(1/60)*_DELTATIME;
+                break;
+            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-64 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-32):
+                VP.y += ((player1.t.y-res.h*.75)-VP.y)/6/(1/60)*_DELTATIME;
+                break;
+            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-32 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-16):
+                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/4/(1/60)*_DELTATIME;
+                break;
+            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-16 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-8):
+                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/3.5/(1/60)*_DELTATIME;
+                break;
+            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-8 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-0):
+                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/3/(1/60)*_DELTATIME;
+                break;
+            default:
+                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/32/(1/60)*_DELTATIME;
+                break;
+        }
+        
     }
 
     VP.x = Math.round(VP.x);
@@ -490,6 +515,11 @@ const update = () =>
         }
     }
 
+    if (rCooldoown != 0)
+    {
+        player1.v.x = player1.v.y = 0;
+    }
+
     if (keyups[JUMPKEY])
         delete keyups[JUMPKEY]
 
@@ -522,7 +552,7 @@ function AABB(x1,y1,w1,h1,x2,y2,w2,h2)
 
 const render = () =>
 {
-    rr.drawBackground(currentCtx, BGCOLOR);
+    rr.drawBackground(currentCtx, "gray");
     
     for (const obj of SCENE.el)
     {

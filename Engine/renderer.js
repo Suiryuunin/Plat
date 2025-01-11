@@ -228,7 +228,7 @@ class Renderer
         DARKCTX.fillStyle = `rgba(0,0,0,1)`;
         DARKCTX.fillRect(0, 0, res.w, res.h);
         
-        addLight(player1.center.x-VP.x,player1.center.y-VP.y, 0,player1.center.x-VP.x,player1.center.y-VP.y, 512);
+        addLight(player1.center.x-VP.x,player1.center.y-VP.y, 128,player1.center.x-VP.x,player1.center.y-VP.y, 512);
 
         DARKCTX.globalCompositeOperation = 'source-over';
 
