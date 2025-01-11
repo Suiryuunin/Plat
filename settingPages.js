@@ -2,7 +2,6 @@ let paused = true;
 const shadowFell = new Audio("Assets/Audio/ShadowFell.mp3");
 shadowFell.volume = 1;
 const landSFX = [new Audio("Assets/Audio/LandSFX0.mp3"),new Audio("Assets/Audio/LandSFX1.mp3"),new Audio("Assets/Audio/LandSFX2.mp3")];
-const dashSFX = new Audio("Assets/Audio/DashSFX.mp3")
 
 window.addEventListener('mousedown', () => {
     document.getElementById("yap").innerHTML = `</br></br>Move On</br></br></br>Go On...</br></br></br>Press "Escape"</br></br></br>or M for the menu...`;

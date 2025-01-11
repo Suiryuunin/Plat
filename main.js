@@ -241,6 +241,8 @@ const update = () =>
             else
             if (obj.name == "Spike")
             {
+                const deathSFX = new Audio("Assets/Audio/Death.mp3");
+                deathSFX.play();
                 player1.die();
             }
         },
@@ -453,6 +455,7 @@ const update = () =>
     }
     else if (keys[DASHKEY] && !dashed && dashLeft > 0)
     {
+        const dashSFX = new Audio("Assets/Audio/DashSFX.mp3");
         dashSFX.currentTime = 0;
         dashSFX.play();
 
