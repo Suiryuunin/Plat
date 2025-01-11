@@ -127,6 +127,11 @@ const update = () =>
                 player1.cp = {x:obj.t.x, y:obj.t.y};
                 player1.LCP = obj;
             }
+            else
+            if (obj.name == "Spike")
+            {
+                player1.die();
+            }
         },
         (obj) => {
             

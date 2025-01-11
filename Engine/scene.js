@@ -7,6 +7,7 @@ class Scene
         this.elements = new LinkedList();
         this.el = [];
         this.PLAT = [];
+        this.SPIKES = [];
         this.SF = [];
         this.SSF = [];
         this.CP = [];
