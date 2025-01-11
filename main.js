@@ -669,7 +669,7 @@ const keys   = {},
 let lWasd = RIGHTKEY;
 
 window.addEventListener("keydown", (e) => {
-    if (keys[e.code]) return;
+    if (keys[e.code] || paused) return;
 
     switch (e.code)
     {
@@ -704,6 +704,9 @@ window.addEventListener("keydown", (e) => {
         lWasd = e.code;
 });
 window.addEventListener("keyup", (e) => {
+    if (paused)
+        return;
+
     if (e.code == UPKEY && keys[e.code] && dy > -1)
         dy--;
     if (e.code == DOWNKEY && keys[e.code] && dy < 1)
@@ -720,6 +723,9 @@ window.addEventListener("keyup", (e) => {
         ldx = 0;
     if (!(keys[UPKEY] && keys[DOWNKEY]))
         ldy = 0;
+
+    if (e.code == "KeyH")
+        player1.die();
 });
 
 // window.addEventListener("click", () =>

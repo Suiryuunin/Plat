@@ -38,10 +38,11 @@ canvas {
     height: 50%;
     font-family: VCR_OSD;
     font-size: 200%;
-    color: white;
+    color: black;
+    text-shadow: red 0 0 4px;
 }
 #midMsg {
-    position: relative;
+    position: absolute;
     top: 50%;
     left: 50%;
     text-align: center;
@@ -50,7 +51,50 @@ canvas {
     transform: translate(-50%, -50%);
     font-family: VCR_OSD;
     font-size: 200%;
-    color: gold;
+    color: black;
+    text-shadow: gold 0 0 4px;
+}
+#lowMsg {
+    position: absolute;
+    bottom: 0%;
+    left: 50%;
+    text-align: center;
+    width: 50%;
+    height: 10%;
+    transform: translate(-50%, 0%);
+    font-family: VCR_OSD;
+    font-size: 200%;
+    color: black;
+    text-shadow: darkred 0 0 4px;
+    display: none;
+}
+#menu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    font-family: VCR_OSD;
+    font-size: 200%;
+    color: black;
+    text-shadow: gold 0 0 8px;
+    background-color: black;
+    display: block;
+}
+#yap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 80%;
+    height: 80%;
+    font-family: VCR_OSD;
+    font-size: 200%;
+    color: black;
+    text-shadow: red 0 0 8px;
+    background-color: black;
 }
 
 body {

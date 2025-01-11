@@ -10,8 +10,7 @@ let BGCOLOR = "black";
 const playerW = 64;
 const playerH = 64;
 const playerMH = 58;
-// const player1 = new Dynamic("rect", {x:128*1.5,y:128*5,w:playerW,h:playerH, o: {x:-0.5,y:-1}}, A_PLAYER[0], new RectCollider(), A_PLAYER, 16);
-const player1 = new Dynamic("rect", {x:128*22.5, y:128*3.5,w:playerW,h:playerH, o: {x:-0.5,y:-1}}, A_PLAYER[0], new RectCollider(), A_PLAYER, 16);
+const player1 = new Dynamic("rect", {x:128*1.5,y:128*5,w:playerW,h:playerH, o: {x:-0.5,y:-1}}, A_PLAYER[0], new RectCollider(), A_PLAYER, 16);
 player1.name = "player";
 player1.type = "ani";
 player1.imgT = {l:4,r:4,t:4,b:4};
@@ -109,9 +108,5 @@ const point = new Dynamic("circle", {x:8,y:8,     w:8,h:8, o: {x:-.5,y:-.5}}, "y
 SCENE.el.push(...SCENE.PLAT, ...SCENE.SPIKES, player1, ...SCENE.CP, ...SCENE.SF, ...SCENE.SSF);
 
 
-window.addEventListener('keyup', (e)=>{
-    if (e.code == "KeyH")
-        player1.die();
-});
 
 // SCENE.el.push(new Word({x:128,y:128*3,h:64,o:{x:0,y:0}}, ["WASD to Move", "K to Jump"], "red"));
