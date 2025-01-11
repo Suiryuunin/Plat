@@ -6,7 +6,7 @@ class Scene
     {
         this.elements = new LinkedList();
         this.el = [];
-        this.PLAt = [];
+        this.PLAT = [];
         this.SF = [];
         this.SSF = [];
         this.CP = [];
@@ -50,8 +50,9 @@ class Scene
 
     collisionsWith(object, callback = undefined, rR = undefined, rRR = undefined)
     {
-        for (const obj of this.el)
+        for (let i = this.el.length-1; i >= 0; i--)
         {
+            const obj = this.el[i];
             if (object.visible && !(object === obj) && object.collideWith(obj, rR, rRR))
             {
                 if (callback != undefined) callback(obj);
@@ -61,16 +62,17 @@ class Scene
 
     update()
     {
-        for (const obj of this.el)
+        for (let i = this.el.length-1; i >= 0; i--)
         {
-            obj.update();
+            this.el[i].update();
         }
     }
 
     render()
     {
-        for (const obj of this.el)
+        for (let i = this.el.length-1; i >= 0; i--)
         {
+            const obj = this.el[i];
             if (obj.visible) obj.render();
         }
     }

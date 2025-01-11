@@ -62,9 +62,6 @@ const point = new Dynamic("circle", {x:8,y:8,     w:8,h:8, o: {x:-.5,y:-.5}}, "y
 const SF = new DashOrb(1024+256-256,1080-512);
 const SSF = new DashOrbII(1024+256-128,1080-512);
 
-SCENE.init(player1);
-SCENE.addBulk([point,EDGEL,EDGER, EDGEB, EDGET, crouchWall, crouchWall2, PLAT]);
-
 
 
 
@@ -75,15 +72,10 @@ SCENE.addBulk([point,EDGEL,EDGER, EDGEB, EDGET, crouchWall, crouchWall2, PLAT]);
 // Checkpoint
 const cp = new Checkpoint(128,1080-12-16-5);
 
-SCENE.CP.push(cp);
-
-SCENE.addBulk(SCENE.CP)
+SCENE.el.push(player1, point,EDGEL,EDGER, EDGEB, EDGET, crouchWall, crouchWall2, PLAT, ...SCENE.PLAT, ...SCENE.CP, ...SCENE.SF, ...SCENE.SSF);
 
 
 window.addEventListener('keyup', (e)=>{
     if (e.code == "KeyH")
         player1.die();
 });
-
-
-SCENE.addBulk([...SCENE.SF, ...SCENE.SSF]);

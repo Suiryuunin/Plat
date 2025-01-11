@@ -12,7 +12,10 @@ class Ray {
         let hits = [];
         let triggerItems = [];
 
-        scene.elements.callNodeMethods((obj) => {
+        for (let j = scene.el.length-1; j >= 0; j--)
+        {
+            const obj = scene.el[j];
+
             if (obj != exc && obj.hitbox != undefined)
             {
                 const rx1 = obj.hitbox.t.x + (obj.hitbox.t.w*obj.hitbox.t.o.x);
@@ -83,7 +86,7 @@ class Ray {
                 if (mdis <= Math.sqrt((this.x2-this.x1)**2+(this.y2-this.y1)**2))
                     hits.push(thits[mi]);
             }
-        });
+        }
         
         let mdis = Infinity;
         let mi = undefined;
