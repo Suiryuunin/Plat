@@ -286,6 +286,11 @@ const update = () =>
             }
             if (tsides.b)
             {
+                if (player1.v.y < -8){
+                    const rindex = Math.round(Math.random()*2); 
+                    landSFX[rindex].currentTime = 0;
+                    landSFX[rindex].play();
+                }
                 player1.grounded = true;
                 player1.ground = obj.parent;
                 player1.friction = obj.parent.friction;
@@ -448,6 +453,9 @@ const update = () =>
     }
     else if (keys[DASHKEY] && !dashed && dashLeft > 0)
     {
+        dashSFX.currentTime = 0;
+        dashSFX.play();
+
         dashLeft--;
         dsec = 0.1;
         dSsec = 0.5;
