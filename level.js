@@ -10,7 +10,8 @@ let BGCOLOR = "black";
 const playerW = 64;
 const playerH = 64;
 const playerMH = 58;
-const player1 = new Dynamic("rect", {x:128*1.5,y:128*5,w:playerW,h:playerH, o: {x:-0.5,y:-1}}, A_PLAYER[0], new RectCollider(), A_PLAYER, 16);
+// const player1 = new Dynamic("rect", {x:128*1.5,y:128*5,w:playerW,h:playerH, o: {x:-0.5,y:-1}}, A_PLAYER[0], new RectCollider(), A_PLAYER, 16);
+const player1 = new Dynamic("rect", {x:128*22.5, y:128*3.5,w:playerW,h:playerH, o: {x:-0.5,y:-1}}, A_PLAYER[0], new RectCollider(), A_PLAYER, 16);
 player1.name = "player";
 player1.type = "ani";
 player1.imgT = {l:4,r:4,t:4,b:4};
@@ -57,16 +58,18 @@ const DASHLS1 = 2;
 const DASHLS2 = 2;
 
 const p = [];
+const s = [];
 for (let i = 0; i < 18; i++)
 {
-    p.push(new VerticalSpike(0, 128*(4-i)))
+    s.push(new VerticalSpike(0, 128*(4-i)))
 }
-p.push(new VerticalSpike(0, 128*4))
+s.push(new VerticalSpike(0, 128*4))
 
 for (let i = 0; i < 20; i++)
 {
     p.push(new HorizontalPlat(128*i, 128*5, (i==0 ? _PLATFORML : (i == 19 ? _PLATFORMR : _PLATFORMC))));
 }
+
 p.push(new VerticalPlat(128*4+64, 128*4,_WALLB), new VerticalPlat(128*4+64, 128*3,_WALLT));
 p.push(new VerticalPlat(128*5+96, 128*3,_WALLB), new VerticalPlat(128*5+96, 128*2,_WALLC), new VerticalPlat(128*5+96, 128,_WALLC), new VerticalPlat(128*5+96, 0,_WALLT));
 p.push(new VerticalPlat(128*7, 128*4,_WALLB), new VerticalPlat(128*7, 128*3,_WALLC), new VerticalPlat(128*7, 128*2,_WALLC), new VerticalPlat(128*7, 128,_WALLC));
@@ -81,10 +84,16 @@ p.push(new HorizontalPlat(128*19, 64, _PLATFORML),new HorizontalPlat(128*20, 64,
 
 for (let i = 0; i < 20; i++)
 {
-    p.push(new HorizontalSpike(128*(i+20), 128*5));
+    s.push(new HorizontalSpike(128*(i+20), 128*5.5));
 }
 
+SF.push(new DashOrb(128*26,128*3.25));
+p.push(new HorizontalPlat(128*29, 128*3.5, _PLATFORML),new HorizontalPlat(128*30, 128*3.5, _PLATFORMR));
+SF.push(new DashOrbII(128*33.5,128*4));
 
+p.push(new VerticalPlat(128*35, 128*2, _WALLB), new VerticalPlat(128*35, 128*1, _WALLC), new VerticalPlat(128*35, 128*0, _WALLC), new VerticalPlat(128*35, 128*-1, _WALLC), new VerticalPlat(128*35, 128*-2, _WALLT));
+p.push(new VerticalPlat(128*33, 128*-1, _WALLB), new VerticalPlat(128*33, 128*-2, _WALLC), new VerticalPlat(128*33, 128*-3, _WALLC), new VerticalPlat(128*33, 128*-4, _WALLT));
+const final = [new HorizontalPlat(128*35, 128*-2.5, _PLATFORML),new HorizontalPlat(128*36, 128*-2.5, _PLATFORMR)];
 
 
 
@@ -93,7 +102,7 @@ for (let i = 0; i < 20; i++)
 const cp = []
 cp.push(new Checkpoint(128*22.5, 128*3.5));
 
-const SSF = new DashOrbII(1024+256-128,1080-512);
+const SSF = new DashOrbII(128*8.5,128*4.5);
 
 
 const point = new Dynamic("circle", {x:8,y:8,     w:8,h:8, o: {x:-.5,y:-.5}}, "yellow");

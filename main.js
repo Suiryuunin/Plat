@@ -110,6 +110,55 @@ let Pc = {
 
 let onLedge = false;
 
+const midMsg = document.getElementById("midMsg");
+
+function Events(obj)
+{
+    switch (obj)
+    {
+        case p[0]:case p[1]:case p[2]:
+            midMsg.innerHTML = "Press WASD to Move";
+            break;
+
+        case p[3]:
+            midMsg.innerHTML = "Press K to Jump";
+            break;
+
+        case p[5]:case p[6]:
+            midMsg.innerHTML = "Press L to Grab onto a Ledge";
+            break;
+            
+        case p[26]:case p[27]:case p[28]:
+            midMsg.innerHTML = "Press K to Wall Jump";
+            break;
+
+        case p[8]:
+            midMsg.innerHTML = "Gold Orbs Grant You 2 Dash Charges";
+            break;
+            
+        case p[13]:
+            midMsg.innerHTML = "Blue Orbs Grant You 1 Dash Charge</br></br>Press J to Dash";
+            break;
+
+        case p[41]:
+            midMsg.innerHTML = "This Is A Checkpoint! :D";
+            break;
+
+        case final[0]: case final[1]:
+            midMsg.innerHTML = "YOU DID IT!!!!</br></br>...</br></br>Due to Various Reasons, The Level Is Hella Short...My Bad ;P";
+            break;
+
+        default:
+            midMsg.innerHTML = "";
+            break;
+    }
+}
+
+
+
+
+
+
 
 
 function DashPowerUp(sf)
@@ -173,6 +222,7 @@ const update = () =>
     SCENE.collisionsWith (
         player1, (obj) => {
             totalCollisions++;
+            Events(obj);
             if (obj.name == "StaminaFruit" && obj.filter == `sepia(${DashPowerUpParam.s}) hue-rotate(${obj.double?DASHH2:DASHH1}deg) saturate(${obj.double?DASHS2:DASHS1})` && dashLeft < (obj.double?2:1))
             {
                 DashPowerUp(obj);
@@ -260,6 +310,7 @@ const update = () =>
     if (totalCollisions == 0)
     {
         onLedge = false;
+        midMsg.innerHTML = "";
     }
     
     if (LgraceSec > 0)
