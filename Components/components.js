@@ -2,10 +2,11 @@ class Checkpoint extends Dynamic
 {
     constructor(x,y)
     {
-        super("rect", {x,y,w:48,h:96, o:{x:-0.5,y:-1}}, "hotpink", new RectCollider());
+        super("img", {x,y,w:48,h:96, o:{x:-0.5,y:-1}}, I_FLAGW, new RectCollider());
         this.hitbox.trigger = true;
         this.name = "checkpoint";
         SCENE.CP.push(this);
+        this.imgT = {l:4,r:4,t:4,b:4};
     }
 }
 
@@ -36,38 +37,44 @@ class DashOrbII extends DashOrb
 
 class HorizontalPlat extends Dynamic
 {
-    constructor(x,y)
+    constructor(x,y, sides = _BLOCKALL)
     {
-        super("rect", {x,y, w:128,h:64, o: {x:0,y:0}}, BGCOLOR, new RectCollider());
+        super("img", {x,y, w:128,h:64, o: {x:0,y:0}}, I_HPLAT, new RectCollider());
         this.name = "HPlat";
+        this.hitbox.sides = sides;
         SCENE.PLAT.push(this);
+        this.imgT = {l:4,r:4,t:4,b:4};
     }
 }
 class VerticalPlat extends Dynamic
 {
-    constructor(x,y)
+    constructor(x,y, sides = _BLOCKALL)
     {
-        super("rect", {x,y, w:64,h:128, o: {x:0,y:0}}, BGCOLOR, new RectCollider());
+        super("img", {x,y, w:64,h:128, o: {x:0,y:0}}, I_VPLAT, new RectCollider());
         this.name = "VPlat";
+        this.hitbox.sides = sides;
         SCENE.PLAT.push(this);
+        this.imgT = {l:4,r:4,t:4,b:4};
     }
 }
 
-class HorizontalSpikes extends HorizontalPlat
+class HorizontalSpike extends HorizontalPlat
 {
     constructor(x,y)
     {
-        super("rect", {x,y, w:128,h:64, o: {x:0,y:0}}, BGCOLOR, new RectCollider());
+        super(x,y);
         this.name = "Spike";
+        this.c = I_HSPIKE;
         SCENE.SPIKES.push(this);
     }
 }
-class VerticalSpikes extends VerticalPlat
+class VerticalSpike extends VerticalPlat
 {
     constructor(x,y)
     {
-        super("rect", {x,y, w:64,h:128, o: {x:0,y:0}}, BGCOLOR, new RectCollider());
+        super(x,y);
         this.name = "Spike";
+        this.c = I_VSPIKE;
         SCENE.SPIKES.push(this);
     }
 }

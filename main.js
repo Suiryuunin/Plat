@@ -7,7 +7,7 @@ const resize = () =>
 
 };
 
-let rCooldoown = 0;
+let rCooldown = 0;
 
 //KEYBINDS default
 let UPKEY = "KeyW";
@@ -34,6 +34,48 @@ const VP = {
     h:res.h
 };
 let adjustVY = false;
+
+function AdjustVP()
+{
+    if (player1.t.y + player1.t.h*player1.t.o.y < VP.y)
+        adjustVY = true;
+    
+    if (Math.abs(player1.t.x-res.w/2-VP.x) > 16)
+    {
+        VP.x += ((player1.t.x-res.w/2)-VP.x)/16/(1/60)*_DELTATIME;
+    }
+    if (Math.abs(player1.t.y-res.h/4*3-VP.y) > 16)
+    {
+        switch (true)
+        {
+            case (adjustVY):
+                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/16/(1/60)*_DELTATIME;
+                break;
+            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-128 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-64):
+                VP.y += ((player1.t.y-res.h*.75)-VP.y)/12/(1/60)*_DELTATIME;
+                break;
+            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-64 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-32):
+                VP.y += ((player1.t.y-res.h*.75)-VP.y)/6/(1/60)*_DELTATIME;
+                break;
+            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-32 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-16):
+                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/4/(1/60)*_DELTATIME;
+                break;
+            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-16 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-8):
+                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/3.5/(1/60)*_DELTATIME;
+                break;
+            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-8 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-0):
+                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/3/(1/60)*_DELTATIME;
+                break;
+            default:
+                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/32/(1/60)*_DELTATIME;
+                break;
+        }
+        
+    }
+
+    VP.x = Math.round(VP.x);
+    VP.y = Math.round(VP.y);
+}
 
 
 let dx = 0;
@@ -81,8 +123,8 @@ function DashPowerUp(sf)
 
 const update = () =>
 {
-    SCENE.update();
 
+    
 
     // Reset filter
     for (const obj of SCENE.SF)
@@ -104,6 +146,20 @@ const update = () =>
         }
     }
 
+    if (((player1.LCP == undefined && player1.visible) || (player1.LCP != undefined && player1.LCP.visible && AABB(player1.t.x+player1.t.o.x*player1.t.w, player1.t.y+player1.t.o.y*player1.t.h, player1.t.w, player1.t.h,
+        player1.LCP.t.x+player1.LCP.t.o.x*player1.LCP.t.w, player1.LCP.t.y+player1.LCP.t.o.y*player1.LCP.t.h, player1.LCP.t.w, player1.LCP.t.h))) && 
+        player1.t.x == player1.cp.x && player1.t.y == player1.cp.y && rCooldown !=0
+    ) rCooldown -= 0.5;
+    if (rCooldown != 0)
+    {
+        player1.t.x = player1.oldt.x = player1.cp.x;
+        player1.t.y = player1.oldt.y = player1.cp.y;
+        AdjustVP();
+        return;
+    };
+
+    SCENE.update();
+
     adjustVY = false;
     player1.grounded = false;
     
@@ -124,6 +180,11 @@ const update = () =>
             else
             if (obj.name == "checkpoint")
             {
+                for (const sf of SCENE.SF)
+                {
+                    sf.c = I_FLAGW;
+                }
+                obj.c = I_FLAG;
                 player1.cp = {x:obj.t.x, y:obj.t.y};
                 player1.LCP = obj;
             }
@@ -221,7 +282,6 @@ const update = () =>
 
 
     
-    if (player1.LCP == undefined || (player1.LCP.visible)) rCooldoown = 0;
 
 
 
@@ -239,7 +299,7 @@ const update = () =>
     }
     else
     {
-        if ((!dashed || (dashed && player1.v.y < 1)) && rCooldoown == 0)
+        if ((!dashed || (dashed && player1.v.y < 1)) && rCooldown == 0)
             player1.v.y-= dsec > 0 ? 4/(1/60)*_DELTATIME : 96/(1/60)*_DELTATIME;
         else
         {
@@ -308,7 +368,9 @@ const update = () =>
 
             player1.t.h = ((player1.t.h-16)/1.5)*(1/60)/_DELTATIME+16;
             if ((36 - player1.t.h) > 0)
-                player1.t.w = (36 - player1.t.h)+56;
+            {
+                player1.t.w = Math.floor((36 - player1.t.h)+56);
+            }
 
         }
         else if (player1.t.h != playerH)
@@ -427,44 +489,7 @@ const update = () =>
 
 
     // Viewport Position
-    if (player1.t.y + player1.t.h*player1.t.o.y < VP.y)
-        adjustVY = true;
-    
-    if (Math.abs(player1.t.x-res.w/2-VP.x) > 16)
-    {
-        VP.x += ((player1.t.x-res.w/2)-VP.x)/16/(1/60)*_DELTATIME;
-    }
-    if (Math.abs(player1.t.y-res.h/4*3-VP.y) > 16)
-    {
-        switch (true)
-        {
-            case (adjustVY):
-                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/16/(1/60)*_DELTATIME;
-                break;
-            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-128 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-64):
-                VP.y += ((player1.t.y-res.h*.75)-VP.y)/12/(1/60)*_DELTATIME;
-                break;
-            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-64 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-32):
-                VP.y += ((player1.t.y-res.h*.75)-VP.y)/6/(1/60)*_DELTATIME;
-                break;
-            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-32 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-16):
-                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/4/(1/60)*_DELTATIME;
-                break;
-            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-16 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-8):
-                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/3.5/(1/60)*_DELTATIME;
-                break;
-            case (!player1.grounded && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h >= VP.y+VP.h-8 && player1.t.y + player1.t.h*player1.t.o.y + player1.t.h < VP.y+VP.h-0):
-                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/3/(1/60)*_DELTATIME;
-                break;
-            default:
-                VP.y += ((player1.t.y-res.h/4*3)-VP.y)/32/(1/60)*_DELTATIME;
-                break;
-        }
-        
-    }
-
-    VP.x = Math.round(VP.x);
-    VP.y = Math.round(VP.y);
+    AdjustVP();
 
 
     // Restore Height
@@ -520,7 +545,7 @@ const update = () =>
         }
     }
 
-    if (rCooldoown != 0)
+    if (rCooldown != 0)
     {
         player1.v.x = player1.v.y = 0;
     }
@@ -557,7 +582,7 @@ function AABB(x1,y1,w1,h1,x2,y2,w2,h2)
 
 const render = () =>
 {
-    rr.drawBackground(currentCtx, "gray");
+    rr.drawBackground(currentCtx, "black");
     
     for (const obj of SCENE.el)
     {

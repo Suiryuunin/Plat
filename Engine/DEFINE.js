@@ -35,8 +35,18 @@ function AssignAniFrames(arr, prefix, suffix)
     }
 }
 
-const I_PLAYER = new Image(128,128);
-I_PLAYER.src = "Assets/Textures/player.png";
+const I_HPLAT = new Image(128,128);
+I_HPLAT.src = "Assets/Textures/HPlat.png";
+const I_VPLAT = new Image(128,128);
+I_VPLAT.src = "Assets/Textures/VPlat.png";
+const I_HSPIKE = new Image(128,128);
+I_HSPIKE.src = "Assets/Textures/HSpike.png";
+const I_VSPIKE = new Image(128,128);
+I_VSPIKE.src = "Assets/Textures/VSpike.png";
+const I_FLAG = new Image(128,128);
+I_FLAG.src = "Assets/Textures/Flag.png";
+const I_FLAGW = new Image(128,128);
+I_FLAGW.src = "Assets/Textures/FlagW.png";
 
 
 const A_PLAYER = [new Image(128,128),new Image(128,128),new Image(128,128)];

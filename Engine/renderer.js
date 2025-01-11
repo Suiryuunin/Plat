@@ -200,16 +200,23 @@ class Renderer
 
     resize(w, h, ratio)
     {
+        const wrapper = document.getElementById("wrapper");
         if (h / w > ratio)
         {
             this.display.canvas.height = Math.ceil(w * ratio);
             this.display.canvas.width =  Math.ceil(w);
+            wrapper.style.height = Math.ceil(w * ratio)+"px";
+            wrapper.style.width = Math.ceil(w)+"px";
         }
         else
         {
             this.display.canvas.height = Math.ceil(h);
             this.display.canvas.width =  Math.ceil(h / ratio);
+            wrapper.style.height = Math.ceil(h)+"px";
+            wrapper.style.width = Math.ceil(h / ratio)+"px";
         }
+
+        wrapper.style.height+="px";
         // this.canvas.style.transform = "translate(-50%, -50%)scale("+_DOWNSCALE+"00%)";
     }
 

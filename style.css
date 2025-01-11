@@ -24,6 +24,23 @@ canvas {
     image-rendering: pixelated;
 }
 
+#wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+#restarts {
+    position: relative;
+    top: 1%;
+    left: 1%;
+    width: 50%;
+    height: 10%;
+    font-family: VCR_OSD;
+    font-size: 200%;
+    color: white;
+}
+
 body {
     background-color: rgb(255, 255, 255);
 }
